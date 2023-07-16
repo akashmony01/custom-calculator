@@ -9,7 +9,7 @@ function Home() {
         <title>Home - welcome to custom calculator</title>
       </Head>
       <section>
-        <div>
+        <div className="bg-gray-500 text-center text-white">
           ghjkl
         </div>
       </section>
