@@ -15,7 +15,7 @@ function CalculatorList() {
               <label htmlFor='calc' className='block text-lg md:text-xl font-bold mb-3'>
                 Selecet A calculator to use:
               </label>
-              <Link href='home'>
+              <Link href='/'>
                 <a className='text-blue-600 underline'>Back to home</a>
               </Link>
             </div>
