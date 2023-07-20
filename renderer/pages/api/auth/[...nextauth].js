@@ -22,13 +22,11 @@ export default NextAuth({
             return null
           }
 
-          const user = await prisma.admins.findFirst({
+          const user = await prisma.tbl_Admin.findFirst({
             where: {
               username: credentials?.username,
             },
           })
-
-          await prisma.$disconnect()
 
           if (!user) {
             return null
@@ -37,6 +35,8 @@ export default NextAuth({
           if (credentials.password !== user.password) {
             return null
           }
+
+          await prisma.$disconnect()
 
           return {
             id: user.id,

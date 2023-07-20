@@ -1,24 +1,31 @@
 import React from "react"
 import Head from "next/head"
 import Link from "next/link"
-import { useRouter } from "next/router"
 import useSWR from "swr"
-import { useSession } from "next-auth/react"
+import { getSession, signOut } from "next-auth/react"
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        parmanent: false,
+        destination: "/signin",
+      },
+    };
+  }
+
+  return {
+    props: {
+      session,
+    },
+  };
+}
 
 const fetcher = url => fetch(url).then(res => res.json())
 
 function Dashboard() {
-  const router = useRouter()
-  const { data: session, status } = useSession()
-
-  if (status === "loading") {
-    return "Loading..."
-  }
-
-  if (status === "unauthenticated" || !session?.user) {
-    router.push("/signin")
-  }
-
   const { data: calculators } = useSWR("api/calculators/find", fetcher)
 
   const activeCalculators =
@@ -50,9 +57,9 @@ function Dashboard() {
               </a>
             </Link>
 
-            <Link href="/">
-              <a className="text-blue-600 underline">Back to home</a>
-            </Link>
+            <button onClick={() => signOut({ callbackUrl: "/" })} type="button" className="px-4 py-2 rounded-md bg-red-600 text-white">
+              Logout
+            </button>
           </div>
 
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">

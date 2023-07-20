@@ -3,12 +3,29 @@ import Link from "next/link"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import { useForm } from "react-hook-form"
-import { signIn, useSession } from "next-auth/react"
+import { signIn, getSession } from "next-auth/react"
 import { toast } from "react-toastify"
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+
+  if (session) {
+    return {
+      redirect: {
+        parmanent: false,
+        destination: "/",
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+}
 
 export default function SigninPage() {
   const router = useRouter()
-  const { data: session, status } = useSession()
+
   const {
     register,
     handleSubmit,
@@ -18,18 +35,16 @@ export default function SigninPage() {
   const onSubmit = data => {
     signIn("credentials", {
       ...data,
-      callbackUrl: "/",
+      redirect: false,
     }).then(({ ok }) => {
-      if (!ok) {
+      if (ok) {
+        router.push("/dashboard")
+      } else {
         toast.error(
-          "Sign in failed. Check the details you provided are correct."
+          "Wrong username or password."
         )
       }
     })
-  }
-
-  if (session) {
-    router.push("/")
   }
 
   return (
@@ -57,9 +72,8 @@ export default function SigninPage() {
 
             <input
               id="username"
-              className={`w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300 ${
-                errors.username && "border-red-400 focus:border-red-400"
-              }`}
+              className={`w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300 ${errors.username && "border-red-400 focus:border-red-400"
+                }`}
               type="text"
               placeholder="username"
               {...register("username", { required: true })}
@@ -75,9 +89,8 @@ export default function SigninPage() {
             </label>
             <input
               id="password"
-              className={`w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300 ${
-                errors.password && "border-red-400 focus:border-red-400"
-              }`}
+              className={`w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300 ${errors.password && "border-red-400 focus:border-red-400"
+                }`}
               type="password"
               placeholder="password"
               {...register("password", { required: true })}
