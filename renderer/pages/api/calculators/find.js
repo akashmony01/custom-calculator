@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   try {
     switch (req.method) {
       case "GET":
-        const calculators = await prisma.calculators.findMany()
+        const calculators = await prisma.tbl_Calculator.findMany()
         res.send(JSON.stringify(calculators))
         break
 
