@@ -10,44 +10,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Admins {
-  id         Int      @id @default(autoincrement())
-  username   String   @unique @db.VarChar(20)
-  password   String   @db.LongText
-  created_at DateTime @default(now())
+model Tbl_Admin {
+  id       Int    @id @default(autoincrement())
+  username String @db.VarChar(30)
+  password String @db.VarChar(255)
 }
 
-model Calculators {
-  id          Int           @id @default(autoincrement())
-  name        String        @db.VarChar(255)
-  status      Boolean       @default(true)
-  created_at  DateTime      @default(now())
-  Expressions Expressions[]
+model Tbl_Calculator {
+  id           Int             @id @default(autoincrement())
+  calc_name    String          @db.VarChar(50)
+  calc_desc    String          @db.LongText
+  is_published Boolean         @default(true)
+  input        Tbl_Input[]
+  output       Tbl_Output?
+  expression   Tbl_Expression?
 }
 
-model Expressions {
-  id          Int         @id @default(autoincrement())
-  name        String      @db.VarChar(255)
-  expressions String      @db.VarChar(255)
-  c_id        Int
-  i_id        Int
-  o_id        Int
-  created_at  DateTime    @default(now())
-  calculators Calculators @relation(fields: [c_id], references: [id])
-  inputs      Inputs      @relation(fields: [i_id], references: [id])
-  output      Outputs     @relation(fields: [o_id], references: [id])
+model Tbl_Expression {
+  id         Int            @id @default(autoincrement())
+  expression String         @db.LongText
+  calc       Tbl_Calculator @relation(fields: [c_id], references: [id])
+  c_id       Int            @unique
 }
 
-model Inputs {
-  id          Int           @id @default(autoincrement())
-  name        String        @db.VarChar(255)
-  created_at  DateTime      @default(now())
-  Expressions Expressions[]
+model Tbl_Input {
+  id        Int            @id @default(autoincrement())
+  disp_name String         @db.VarChar(50)
+  var_name  String         @db.VarChar(50)
+  calc      Tbl_Calculator @relation(fields: [c_id], references: [id])
+  c_id      Int
 }
 
-model Outputs {
-  id          Int           @id @default(autoincrement())
-  name        String        @db.VarChar(255)
-  created_at  DateTime      @default(now())
-  Expressions Expressions[]
+model Tbl_Output {
+  id        Int            @id @default(autoincrement())
+  disp_name String         @db.VarChar(50)
+  calc      Tbl_Calculator @relation(fields: [c_id], references: [id])
+  c_id      Int            @unique
 }
