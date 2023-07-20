@@ -10,18 +10,12 @@ export default async function handler(req, res) {
         res.send(JSON.stringify(calculators))
         break
 
-      case "POST":
-        // Create Logic
-        break
-
-      case "PUT":
-        // Update Logic
-        break
-
       default:
         res.status(403).send("")
         break
     }
+
+    await prisma.$disconnect()
   } catch (error) {
     console.log(error)
     return res.status(500).send("Internal Server Error!")
