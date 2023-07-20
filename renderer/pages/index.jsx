@@ -1,11 +1,8 @@
 import React from "react"
 import Head from "next/head"
 import Link from "next/link"
-import { signOut, useSession } from "next-auth/react"
 
 function Home() {
-  const { data: session } = useSession()
-
   return (
     <React.Fragment>
       <Head>
@@ -53,15 +50,6 @@ function Home() {
               </div>
             </div>
           </div>
-
-          {session && (
-            <button
-              onClick={() => signOut()}
-              className="inline-block bg-red-600 mt-10 text-white px-3 py-1 rounded-md"
-            >
-              Logout
-            </button>
-          )}
         </div>
       </section>
     </React.Fragment>
