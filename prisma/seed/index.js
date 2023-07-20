@@ -5,8 +5,8 @@ const prisma = new PrismaClient()
 
 async function main() {
   for (let admin of admins) {
-    const data = await prisma.admins.upsert({
-      where: { username: admin.username },
+    const data = await prisma.tbl_Admin.upsert({
+      where: { id: 1, username: admin.username },
       update: {},
       create: admin,
     })
