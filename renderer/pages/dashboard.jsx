@@ -29,9 +29,9 @@ function Dashboard() {
   const { data: calculators } = useSWR("api/calculators/find", fetcher)
 
   const activeCalculators =
-    calculators?.filter(calculator => calculator.status) || []
+    calculators?.filter(calculator => calculator.is_published) || []
   const draftCalculators =
-    calculators?.filter(calculator => !calculator.status) || []
+    calculators?.filter(calculator => !calculator.is_published) || []
 
   return (
     <React.Fragment>
@@ -77,7 +77,7 @@ function Dashboard() {
                     className="bg-gray-100 px-3 py-2 rounded-md hover:bg-blue-400/20 duration-300 cursor-pointer"
                   >
                     <div className="flex items-center justify-between gap-4">
-                      <a href={calculator.id}>{calculator.name}</a>
+                      <a href={calculator.id}>{calculator?.calc_name || ""}</a>
 
                       <div className="flex gap-2">
                         <Link href={`edit-calculator?id=${calculator.id}`}>
@@ -93,7 +93,7 @@ function Dashboard() {
                     <hr className="mt-2" />
 
                     <p className="text-sm opacity-70">
-                      {calculator?.desc || "No description available"}
+                      {calculator?.calc_desc || "No description available"}
                     </p>
                   </li>
                 ))}
@@ -114,7 +114,7 @@ function Dashboard() {
                     className="bg-gray-100 px-3 py-2 rounded-md hover:bg-blue-400/20 duration-300 cursor-pointer"
                   >
                     <div className="flex items-center justify-between gap-4">
-                      <a href={calculator.id}>{calculator.name}</a>
+                      <a href={calculator.id}>{calculator?.calc_name || ""}</a>
 
                       <div className="flex gap-2">
                         <Link href={`edit-calculator?id=${calculator.id}`}>
@@ -130,7 +130,7 @@ function Dashboard() {
                     <hr className="mt-2" />
 
                     <p className="text-sm opacity-70">
-                      {calculator?.desc || "No description available"}
+                      {calculator?.calc_desc || "No description available"}
                     </p>
                   </li>
                 ))}
