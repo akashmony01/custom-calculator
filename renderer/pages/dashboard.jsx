@@ -1,11 +1,11 @@
 import React from "react"
 import Head from "next/head"
 import Link from "next/link"
-import useSWR from "swr"
 import { getSession, signOut } from "next-auth/react"
+import useAxiosFetch from "../hooks/useAxiosFetch"
 
 export async function getServerSideProps(context) {
-  const session = await getSession(context);
+  const session = await getSession(context)
 
   if (!session) {
     return {
@@ -13,25 +13,25 @@ export async function getServerSideProps(context) {
         parmanent: false,
         destination: "/signin",
       },
-    };
+    }
   }
 
   return {
     props: {
       session,
     },
-  };
+  }
 }
 
-const fetcher = url => fetch(url).then(res => res.json())
-
-function Dashboard() {
-  const { data: calculators } = useSWR("api/calculators/find", fetcher)
+function Dashboard({ session }) {
+  const { response: calculators } = useAxiosFetch({
+    url: "/api/calculators",
+  })
 
   const activeCalculators =
-    calculators?.filter(calculator => calculator.is_published) || []
+    calculators?.data?.filter(calculator => calculator.is_published) || []
   const draftCalculators =
-    calculators?.filter(calculator => !calculator.is_published) || []
+    calculators?.data?.filter(calculator => !calculator.is_published) || []
 
   return (
     <React.Fragment>
@@ -47,8 +47,6 @@ function Dashboard() {
               className="block text-lg md:text-xl font-bold"
             >
               Admin Dashboard
-              <br />
-              {/* <small>{session.user.username}</small> */}
             </label>
 
             <Link href="/create-calculator">
@@ -57,7 +55,11 @@ function Dashboard() {
               </a>
             </Link>
 
-            <button onClick={() => signOut({ callbackUrl: "/" })} type="button" className="px-4 py-2 rounded-md bg-red-600 text-white">
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              type="button"
+              className="px-4 py-2 rounded-md bg-red-600 text-white"
+            >
               Logout
             </button>
           </div>

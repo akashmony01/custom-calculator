@@ -1,41 +1,29 @@
 import React, { useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
+import axios from "axios"
+import { toast } from "react-toastify"
+import { useRouter } from "next/router"
 import { getSession } from "next-auth/react"
-import CalculatorInput from "../components/Calculator/CalculatorInput";
+import CalculatorInput from "../components/Calculator/CalculatorInput"
 
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
+const EMPTY_DYNAMIC_CALC_INPUT = {
+  value: "",
+  varValue: "",
+}
 
-  if (!session) {
-    return {
-      redirect: {
-        parmanent: false,
-        destination: "/signin",
-      },
-    };
-  }
-
-  return {
-    props: {
-      session,
-    },
-  };
+const DEFAILT_FORM_FIELDS = {
+  calc_name: "",
+  calc_desc: "",
+  o_disp_name: "",
+  expression: "",
 }
 
 function CreateCalculator() {
-  const [calcInputs, setCalcInputs] = useState([
-    {
-      value: "",
-      varValue: ""
-    },
-  ])
-  const [formInputs, setFormInputs] = useState({
-    calc_name: "",
-    calc_desc: "",
-    o_disp_name: "",
-    expression: "",
-  })
+  const router = useRouter()
+
+  const [calcInputs, setCalcInputs] = useState([EMPTY_DYNAMIC_CALC_INPUT])
+  const [formInputs, setFormInputs] = useState(DEFAILT_FORM_FIELDS)
 
   const handleDynamicInputChange = (inputIndex, evt, isVar = false) => {
     let newInput = [...calcInputs]
@@ -49,41 +37,58 @@ function CreateCalculator() {
     setCalcInputs(newInput)
   }
 
-  let removeDynamicInput = (inputIndex) => {
+  let removeDynamicInput = inputIndex => {
     let newInput = [...calcInputs]
     newInput.splice(inputIndex, 1)
     setCalcInputs(newInput)
   }
 
-  let handleInputChange = (e) => {
+  let handleInputChange = e => {
     let newFormInput = formInputs
     newFormInput[e.target.name] = e.target.value
     setFormInputs(newFormInput)
   }
 
   let addFormFields = () => {
-    setCalcInputs([...calcInputs, {
-      value: "",
-      varValue: ""
-    }])
+    setCalcInputs([...calcInputs, EMPTY_DYNAMIC_CALC_INPUT])
   }
 
-  const handleSubmit = (evt) => {
+  const handleSubmit = async (evt, isPublished) => {
     evt.preventDefault()
 
-    const dynamicInputs = calcInputs.filter(input => input.value !== "" && input.varValue !== "");
+    const dynamicInputs = calcInputs.filter(
+      input => input.value !== "" && input.varValue !== ""
+    )
 
-    console.log(dynamicInputs, formInputs);
-    fetch("/api/calculators/create", {
-      method: "POST",
+    const formData = {
+      inputs: dynamicInputs,
+      ...formInputs,
+      isPublished,
+    }
+
+    const requestOptions = {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        inputs: dynamicInputs,
-        ...formInputs
-      }),
-    })
+    }
+
+    try {
+      await axios.post("/api/calculators", formData, requestOptions)
+
+      toast.success("Calculator created successfully", {
+        autoClose: 1000,
+        onClose: () => {
+          router.push("/dashboard")
+        },
+      })
+    } catch (error) {
+      toast.error("Failed to create new calculator", {
+        autoClose: 1500,
+        onClose: () => {
+          router.push("/dashboard")
+        },
+      })
+    }
   }
 
   return (
@@ -130,13 +135,16 @@ function CreateCalculator() {
             <h3 className="mt-4 font-bold">Calculator Inputs</h3>
 
             {calcInputs.map((input, idx) => (
-              <div key={idx} className="block mt-4 bg-gray-200 rounded-md space-y-4 px-5 py-4">
+              <div
+                key={idx}
+                className="block mt-4 bg-gray-200 rounded-md space-y-4 px-5 py-4"
+              >
                 <CalculatorInput
                   name={`input_${idx + 1}`}
                   inputLabel="Input Name"
                   placeholder="Input Name"
                   value={input.value}
-                  onChangeHandler={(e) => handleDynamicInputChange(idx, e)}
+                  onChangeHandler={e => handleDynamicInputChange(idx, e)}
                 />
 
                 <CalculatorInput
@@ -144,17 +152,24 @@ function CreateCalculator() {
                   inputLabel="Variable Name"
                   placeholder="Variable Name"
                   value={input.varValue}
-                  onChangeHandler={(e) => handleDynamicInputChange(idx, e, true)}
+                  onChangeHandler={e => handleDynamicInputChange(idx, e, true)}
                 />
 
-                <button onClick={() => removeDynamicInput(idx)} className="px-10 py-2 bg-red-600 rounded-md text-white">
+                <button
+                  onClick={() => removeDynamicInput(idx)}
+                  className="px-10 py-2 bg-red-600 rounded-md text-white"
+                >
                   Delete Input
                 </button>
               </div>
             ))}
 
             <div className="mt-4">
-              <button onClick={addFormFields} type="button" className="ml-auto block px-10 py-2 bg-blue-600 rounded-md text-white">
+              <button
+                onClick={addFormFields}
+                type="button"
+                className="ml-auto block px-10 py-2 bg-blue-600 rounded-md text-white"
+              >
                 Add Inputs
               </button>
             </div>
@@ -182,11 +197,19 @@ function CreateCalculator() {
             </div>
 
             <div className="mt-4 flex items-center justify-between gap-4">
-              <button className="px-10 py-2 bg-blue-600 rounded-md text-white">
+              <button
+                type="button"
+                onClick={e => handleSubmit(e, false)}
+                className="px-10 py-2 bg-blue-600 rounded-md text-white"
+              >
                 Save Draft
               </button>
 
-              <button className="px-10 py-2 bg-green-600 rounded-md text-white">
+              <button
+                type="button"
+                onClick={e => handleSubmit(e, true)}
+                className="px-10 py-2 bg-green-600 rounded-md text-white"
+              >
                 Publish Calculator
               </button>
             </div>
@@ -195,6 +218,25 @@ function CreateCalculator() {
       </section>
     </React.Fragment>
   )
+}
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context)
+
+  if (!session) {
+    return {
+      redirect: {
+        parmanent: false,
+        destination: "/signin",
+      },
+    }
+  }
+
+  return {
+    props: {
+      session,
+    },
+  }
 }
 
 export default CreateCalculator
