@@ -5,7 +5,32 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     try {
-      const calculators = await prisma.tbl_Calculator.findMany()
+      const query = req.query
+      let calculators
+
+      if (query.filterStatus && query.filterStatus === "published") {
+        calculators = await prisma.tbl_Calculator.findMany({
+          where: {
+            is_published: true,
+          },
+          include: {
+            input: true,
+            output: true,
+          },
+        })
+      } else if (query.filterStatus && query.filterStatus === "draft") {
+        calculators = await prisma.tbl_Calculator.findMany({
+          where: {
+            is_published: false,
+          },
+          include: {
+            input: true,
+            output: true,
+          },
+        })
+      } else {
+        calculators = await prisma.tbl_Calculator.findMany()
+      }
 
       return res.status(200).json({
         data: calculators,
