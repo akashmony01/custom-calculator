@@ -79,6 +79,7 @@ function CreateCalculator() {
         autoClose: 1000,
         onClose: () => {
           router.push("/dashboard")
+          reset()
         },
       })
     } catch (error) {
@@ -88,10 +89,9 @@ function CreateCalculator() {
         autoClose: 1500,
         onClose: () => {
           router.push("/dashboard")
+          reset()
         },
       })
-    } finally {
-      reset()
     }
   }
 
@@ -127,6 +127,7 @@ function CreateCalculator() {
         autoClose: 1000,
         onClose: () => {
           router.push("/dashboard")
+          reset()
         },
       })
     } catch (error) {
@@ -136,10 +137,9 @@ function CreateCalculator() {
         autoClose: 1500,
         onClose: () => {
           router.push("/dashboard")
+          reset()
         },
       })
-    } finally {
-      reset()
     }
   }
 
