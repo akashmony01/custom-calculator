@@ -24,46 +24,48 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     try {
       const {
-        inputs,
         calc_name,
         calc_desc,
-        expression,
-        isPublished,
-        o_disp_name,
+        dynamicInputs,
+        calc_output_expression,
+        calc_output_disp_name,
+        published,
       } = req.body
 
       const newCalculator = await prisma.tbl_Calculator.create({
         data: {
           calc_name,
           calc_desc,
-          is_published: isPublished,
+          is_published: published,
         },
       })
 
       await prisma.tbl_Input.createMany({
-        data: inputs.map(input => ({
-          disp_name: input.value,
-          var_name: input.varValue,
+        data: dynamicInputs.map(input => ({
+          ...input,
+          var_name: `inp_${input.var_name}`,
           c_id: newCalculator.id,
         })),
       })
 
-      await prisma.tbl_Expression.create({
+      // TODO: Task A. 6 - Need to work on that
+
+      const newOutput = await prisma.tbl_Output.create({
         data: {
-          expression,
+          disp_name: calc_output_disp_name,
           c_id: newCalculator.id,
         },
       })
 
-      await prisma.tbl_Output.create({
+      await prisma.tbl_Expression.create({
         data: {
-          disp_name: o_disp_name,
-          c_id: newCalculator.id,
+          expression: calc_output_expression,
+          o_id: newOutput.id,
         },
       })
 
       return res.status(201).json({
-        data: newCalculator.id,
+        data: 1,
         error: false,
       })
     } catch (error) {

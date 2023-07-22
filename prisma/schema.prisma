@@ -17,20 +17,19 @@ model Tbl_Admin {
 }
 
 model Tbl_Calculator {
-  id           Int             @id @default(autoincrement())
-  calc_name    String          @db.VarChar(50)
-  calc_desc    String          @db.LongText
-  is_published Boolean         @default(true)
+  id           Int         @id @default(autoincrement())
+  calc_name    String      @db.VarChar(50)
+  calc_desc    String      @db.LongText
+  is_published Boolean     @default(true)
   input        Tbl_Input[]
   output       Tbl_Output?
-  expression   Tbl_Expression?
 }
 
 model Tbl_Expression {
-  id         Int            @id @default(autoincrement())
-  expression String         @db.LongText
-  calc       Tbl_Calculator @relation(fields: [c_id], references: [id])
-  c_id       Int            @unique
+  id         Int        @id @default(autoincrement())
+  expression String     @db.LongText
+  output     Tbl_Output @relation(fields: [o_id], references: [id])
+  o_id       Int        @unique
 }
 
 model Tbl_Input {
@@ -42,8 +41,9 @@ model Tbl_Input {
 }
 
 model Tbl_Output {
-  id        Int            @id @default(autoincrement())
-  disp_name String         @db.VarChar(50)
-  calc      Tbl_Calculator @relation(fields: [c_id], references: [id])
-  c_id      Int            @unique
+  id            Int             @id @default(autoincrement())
+  disp_name     String          @db.VarChar(50)
+  calc          Tbl_Calculator  @relation(fields: [c_id], references: [id])
+  c_id          Int             @unique
+  tblExpression Tbl_Expression?
 }

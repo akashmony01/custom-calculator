@@ -1,75 +1,67 @@
-import React, { useState } from "react"
+import React from "react"
 import Head from "next/head"
 import Link from "next/link"
+import * as yup from "yup"
 import axios from "axios"
 import { toast } from "react-toastify"
-import { useRouter } from "next/router"
 import { getSession } from "next-auth/react"
-import CalculatorInput from "../components/Calculator/CalculatorInput"
+import { useForm, useFieldArray } from "react-hook-form"
+import { useRouter } from "next/router"
+
+const createCalculatorSchema = yup.object().shape({
+  calc_name: yup.string().required(),
+  calc_desc: yup.string().required(),
+  dynamicInputs: yup
+    .array(
+      yup.object({
+        disp_name: yup.string().required(),
+        var_name: yup.string().required(),
+      })
+    )
+    .required(),
+  calc_output_expression: yup.string().required(),
+  calc_output_disp_name: yup.string().required(),
+})
 
 function CreateCalculator() {
   const router = useRouter()
-
-  const [calcInputs, setCalcInputs] = useState([
-    {
-      value: "",
-      varValue: "",
-    }
-  ])
-  const [formInputs, setFormInputs] = useState({
-    calc_name: "",
-    calc_desc: "",
-    o_disp_name: "",
-    expression: "",
+  const { register, control, handleSubmit, reset, getValues } = useForm({
+    defaultValues: {
+      calc_name: "",
+      calc_desc: "",
+      dynamicInputs: [{ disp_name: "", var_name: "" }],
+      calc_output_expression: "",
+      calc_output_disp_name: "",
+    },
   })
 
-  const handleDynamicInputChange = (inputIndex, evt, isVar = false) => {
-    let newInput = [...calcInputs]
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "dynamicInputs",
+  })
 
-    if (isVar) {
-      newInput[inputIndex].varValue = evt.target.value
-    } else {
-      newInput[inputIndex].value = evt.target.value
+  const createCalculator = async data => {
+    const toastId = toast("Creating calculator...", {
+      type: "info",
+      autoClose: false,
+      closeButton: false,
+    })
+
+    const isDataValid = await createCalculatorSchema.isValid(data)
+
+    // TODO: Task A. 5 - Check for duplicate var_name from dynamic inputs
+
+    if (!isDataValid) {
+      return toast.update(toastId, {
+        render: "Some required information is missing, try to save as draft",
+        type: "error",
+        autoClose: 2000,
+      })
     }
 
-    setCalcInputs(newInput)
-  }
-
-  let removeDynamicInput = inputIndex => {
-    let newInput = [...calcInputs]
-    newInput.splice(inputIndex, 1)
-    setCalcInputs(newInput)
-  }
-
-  let handleInputChange = e => {
-    let newFormInput = formInputs
-    newFormInput[e.target.name] = e.target.value
-    setFormInputs(newFormInput)
-  }
-
-  let addFormFields = () => {
-    let prevInputs = [
-      ...calcInputs,
-      {
-        value: "",
-        varValue: "",
-      }
-    ]
-
-    setCalcInputs(prevInputs)
-  }
-
-  const handleSubmit = async (evt, isPublished) => {
-    evt.preventDefault()
-
-    const dynamicInputs = calcInputs.filter(
-      input => input.value !== "" && input.varValue !== ""
-    )
-
     const formData = {
-      inputs: dynamicInputs,
-      ...formInputs,
-      isPublished,
+      ...data,
+      published: true,
     }
 
     const requestOptions = {
@@ -78,14 +70,8 @@ function CreateCalculator() {
       },
     }
 
-    const toastId = toast("Creating calculator...", {
-      type: "info",
-      autoClose: false,
-      closeButton: false,
-    });
-
     try {
-      const { data } = await axios.post("/api/calculators", formData, requestOptions)
+      await axios.post("/api/calculators", formData, requestOptions)
 
       toast.update(toastId, {
         render: "Calculator created successfully",
@@ -104,13 +90,63 @@ function CreateCalculator() {
           router.push("/dashboard")
         },
       })
+    } finally {
+      reset()
+    }
+  }
+
+  const createDraftCalculator = async evt => {
+    evt.preventDefault()
+
+    const toastId = toast("Creating calculator...", {
+      type: "info",
+      autoClose: false,
+      closeButton: false,
+    })
+
+    // TODO: Task A. 5 - Check for duplicate var_name from dynamic inputs
+
+    const data = getValues()
+    const formData = {
+      ...data,
+      published: false,
+    }
+
+    const requestOptions = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+
+    try {
+      await axios.post("/api/calculators", formData, requestOptions)
+
+      toast.update(toastId, {
+        render: "Calculator created as Draft",
+        type: "success",
+        autoClose: 1000,
+        onClose: () => {
+          router.push("/dashboard")
+        },
+      })
+    } catch (error) {
+      toast.update(toastId, {
+        render: "Failed to create new calculator",
+        type: "error",
+        autoClose: 1500,
+        onClose: () => {
+          router.push("/dashboard")
+        },
+      })
+    } finally {
+      reset()
     }
   }
 
   return (
     <React.Fragment>
       <Head>
-        <title>Create Calculator</title>
+        <title>Create Calculator | Admin</title>
       </Head>
 
       <section className="min-h-screen flex justify-center items-center py-10">
@@ -119,72 +155,128 @@ function CreateCalculator() {
             <h1 htmlFor="calc" className="block text-xl md:text-2xl font-bold">
               Create Calculator
             </h1>
+
             <Link href="/dashboard">
               <a className="text-blue-600 underline">Back to dashboard</a>
             </Link>
           </div>
 
-          <hr className="my-2" />
+          <hr className="my-4" />
 
-          <form onSubmit={handleSubmit} className="block">
-            <div className="block mt-4">
-              <CalculatorInput
-                name="calc_name"
-                inputLabel="Calculator Name"
-                placeholder="Calculator Name"
-                className="mt-4"
-                value=""
-                onChangeHandler={handleInputChange}
-              />
+          <form className="block" onSubmit={handleSubmit(createCalculator)}>
+            <div className="create-calc-meta block mt-4">
+              <div className="calc-disp-name-wrapper">
+                <label
+                  htmlFor="calc_name"
+                  className="inline-block cursor-pointer mb-2"
+                >
+                  Calculator Name
+                </label>
 
-              <CalculatorInput
-                name="calc_desc"
-                inputLabel="Calculator Description"
-                placeholder="Calculator Description"
-                className="mt-4"
-                value=""
-                onChangeHandler={handleInputChange}
-                isTextArea
-              />
+                <input
+                  type="text"
+                  id="calc_name"
+                  className="w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300"
+                  placeholder="Set a display name for the calculator"
+                  {...register("calc_name", {
+                    required: false,
+                  })}
+                />
+              </div>
+
+              <div className="calc-desc-wrapper mt-4">
+                <label
+                  htmlFor="calc_desc"
+                  className="inline-block cursor-pointer mb-2"
+                >
+                  Calculator Description
+                </label>
+
+                <input
+                  type="text"
+                  id="calc_desc"
+                  className="w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300"
+                  placeholder="Set a description for the calculator"
+                  {...register("calc_desc", {
+                    required: false,
+                  })}
+                />
+              </div>
             </div>
 
             <h3 className="mt-4 font-bold">Calculator Inputs</h3>
 
-            {calcInputs.map((input, idx) => (
-              <div
-                key={idx}
-                className="block mt-4 bg-gray-200 rounded-md space-y-4 px-5 py-4"
-              >
-                <CalculatorInput
-                  name={`input_${idx + 1}`}
-                  inputLabel="Input Name"
-                  placeholder="Input Name"
-                  value={input.value}
-                  onChangeHandler={e => handleDynamicInputChange(idx, e)}
-                />
+            <div className="calc-dynamic-inputs">
+              {fields.map((item, index) => {
+                return (
+                  <div
+                    key={item.id}
+                    className="block mt-4 bg-gray-200 rounded-md space-y-4 px-5 py-4"
+                  >
+                    <div className="calc-dynamic-input">
+                      <label
+                        htmlFor={`dy_inp_disp_name_${index}`}
+                        className="inline-block cursor-pointer mb-2"
+                      >
+                        Input Name
+                      </label>
 
-                <CalculatorInput
-                  name={`variable_${idx + 1}`}
-                  inputLabel="Variable Name"
-                  placeholder="Variable Name"
-                  value={input.varValue}
-                  onChangeHandler={e => handleDynamicInputChange(idx, e, true)}
-                />
+                      <input
+                        type="text"
+                        id={`dy_inp_disp_name_${index}`}
+                        className="w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300"
+                        placeholder="Set a display name for the input"
+                        {...register(`dynamicInputs.${index}.disp_name`, {
+                          required: false,
+                        })}
+                      />
+                    </div>
 
-                <button
-                  onClick={() => removeDynamicInput(idx)}
-                  className="px-10 py-2 bg-red-600 rounded-md text-white"
-                >
-                  Delete Input
-                </button>
-              </div>
-            ))}
+                    <div className="calc-dynamic-var mt-4">
+                      <label
+                        htmlFor={`dy_inp_var_name_${index}`}
+                        className="inline-block cursor-pointer mb-2"
+                      >
+                        Variable Name
+                      </label>
+
+                      <input
+                        type="text"
+                        id={`dy_inp_var_name_${index}`}
+                        className="w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300"
+                        placeholder="Set a input name without special characters"
+                        {...register(`dynamicInputs.${index}.var_name`, {
+                          required: false,
+                        })}
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={fields.length <= 1}
+                      className={`px-10 py-2 mt-4 bg-red-600 rounded-md text-white ${
+                        fields.length <= 1
+                          ? "disabled:bg-gray-400 disabled:pointer-events-none"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        if (fields.length > 1) {
+                          remove(index)
+                        }
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
 
             <div className="mt-4">
               <button
-                onClick={addFormFields}
                 type="button"
                 className="ml-auto block px-10 py-2 bg-blue-600 rounded-md text-white"
+                onClick={() => append()}
               >
                 Add Inputs
               </button>
@@ -192,40 +284,56 @@ function CreateCalculator() {
 
             <h3 className="mt-4 font-bold">Calculator Outputs</h3>
 
-            <div className="block mt-4 bg-gray-200 rounded-md space-y-4 px-5 py-4">
-              <CalculatorInput
-                name="o_disp_name"
-                inputLabel="Output Name"
-                placeholder="Output Name"
-                value=""
-                onChangeHandler={handleInputChange}
-              />
+            <div className="create-calc-outputs block mt-4 bg-gray-200 rounded-md space-y-4 px-5 py-4">
+              <div className="calc-output-disp-name-wrapper">
+                <label
+                  htmlFor="calc_output_disp_name"
+                  className="inline-block cursor-pointer mb-2"
+                >
+                  Output Name
+                </label>
 
-              <CalculatorInput
-                name="expression"
-                inputLabel="Output Expression"
-                placeholder="Output Expression"
-                className="mt-4"
-                value=""
-                onChangeHandler={handleInputChange}
-                isTextArea
-              />
+                <input
+                  type="text"
+                  id="calc_output_disp_name"
+                  className="w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300"
+                  placeholder="Set a display name for the output"
+                  {...register("calc_output_disp_name", {
+                    required: false,
+                  })}
+                />
+              </div>
+
+              <div className="calc-output-expression-wrapper">
+                <label
+                  htmlFor="calc_output_expression"
+                  className="inline-block cursor-pointer mb-2"
+                >
+                  Output Expression
+                </label>
+
+                <input
+                  type="text"
+                  id="calc_output_expression"
+                  className="w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300"
+                  placeholder="Set a expression to be executed"
+                  {...register("calc_output_expression", {
+                    required: false,
+                  })}
+                />
+              </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-between gap-4">
+            <div className="create-calc-actions mt-4 flex items-center justify-center gap-4">
               <button
                 type="button"
-                onClick={e => handleSubmit(e, false)}
+                onClick={createDraftCalculator}
                 className="px-10 py-2 bg-blue-600 rounded-md text-white"
               >
                 Save Draft
               </button>
 
-              <button
-                type="button"
-                onClick={e => handleSubmit(e, true)}
-                className="px-10 py-2 bg-green-600 rounded-md text-white"
-              >
+              <button className="px-10 py-2 bg-green-600 rounded-md text-white">
                 Publish Calculator
               </button>
             </div>
