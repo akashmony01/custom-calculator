@@ -63,7 +63,7 @@ export default async function handler(req, res) {
       })
 
       return res.status(201).json({
-        data: "Calculator created successfully",
+        data: newCalculator.id,
         error: false,
       })
     } catch (error) {

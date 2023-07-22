@@ -7,23 +7,21 @@ import { useRouter } from "next/router"
 import { getSession } from "next-auth/react"
 import CalculatorInput from "../components/Calculator/CalculatorInput"
 
-const EMPTY_DYNAMIC_CALC_INPUT = {
-  value: "",
-  varValue: "",
-}
-
-const DEFAILT_FORM_FIELDS = {
-  calc_name: "",
-  calc_desc: "",
-  o_disp_name: "",
-  expression: "",
-}
-
 function CreateCalculator() {
   const router = useRouter()
 
-  const [calcInputs, setCalcInputs] = useState([EMPTY_DYNAMIC_CALC_INPUT])
-  const [formInputs, setFormInputs] = useState(DEFAILT_FORM_FIELDS)
+  const [calcInputs, setCalcInputs] = useState([
+    {
+      value: "",
+      varValue: "",
+    }
+  ])
+  const [formInputs, setFormInputs] = useState({
+    calc_name: "",
+    calc_desc: "",
+    o_disp_name: "",
+    expression: "",
+  })
 
   const handleDynamicInputChange = (inputIndex, evt, isVar = false) => {
     let newInput = [...calcInputs]
@@ -50,7 +48,15 @@ function CreateCalculator() {
   }
 
   let addFormFields = () => {
-    setCalcInputs([...calcInputs, EMPTY_DYNAMIC_CALC_INPUT])
+    let prevInputs = [
+      ...calcInputs,
+      {
+        value: "",
+        varValue: "",
+      }
+    ]
+
+    setCalcInputs(prevInputs)
   }
 
   const handleSubmit = async (evt, isPublished) => {
@@ -72,17 +78,27 @@ function CreateCalculator() {
       },
     }
 
-    try {
-      await axios.post("/api/calculators", formData, requestOptions)
+    const toastId = toast("Creating calculator...", {
+      type: "info",
+      autoClose: false,
+      closeButton: false,
+    });
 
-      toast.success("Calculator created successfully", {
+    try {
+      const { data } = await axios.post("/api/calculators", formData, requestOptions)
+
+      toast.update(toastId, {
+        render: "Calculator created successfully",
+        type: "success",
         autoClose: 1000,
         onClose: () => {
           router.push("/dashboard")
         },
       })
     } catch (error) {
-      toast.error("Failed to create new calculator", {
+      toast.update(toastId, {
+        render: "Failed to create new calculator",
+        type: "error",
         autoClose: 1500,
         onClose: () => {
           router.push("/dashboard")

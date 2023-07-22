@@ -23,7 +23,7 @@ export async function getServerSideProps(context) {
   }
 }
 
-function Dashboard({ session }) {
+function Dashboard() {
   const { response: calculators } = useAxiosFetch({
     url: "/api/calculators",
   })
@@ -75,6 +75,7 @@ function Dashboard({ session }) {
               <ul className="space-y-4 pt-2">
                 {activeCalculators.map(calculator => (
                   <li
+                    id={`calc_id_${calculator.id}`}
                     key={calculator.id}
                     className="bg-gray-100 px-3 py-2 rounded-md hover:bg-blue-400/20 duration-300 cursor-pointer"
                   >
@@ -112,6 +113,7 @@ function Dashboard({ session }) {
               <ul className="space-y-4 pt-2">
                 {draftCalculators.map(calculator => (
                   <li
+                    id={`calc_id_${calculator.id}`}
                     key={calculator.id}
                     className="bg-gray-100 px-3 py-2 rounded-md hover:bg-blue-400/20 duration-300 cursor-pointer"
                   >
