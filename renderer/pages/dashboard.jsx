@@ -87,6 +87,10 @@ function Dashboard() {
                           <a className="text-red-500 underline">Edit</a>
                         </Link>
 
+                        <Link href="/">
+                          <a className="text-red-500 underline">Delete</a>
+                        </Link>
+
                         <Link href="calculator-list">
                           <a className="text-blue-500 underline">Test</a>
                         </Link>
@@ -125,8 +129,8 @@ function Dashboard() {
                           <a className="text-red-500 underline">Edit</a>
                         </Link>
 
-                        <Link href="calculator-list">
-                          <a className="text-blue-500 underline">Test</a>
+                        <Link href="/">
+                          <a className="text-red-500 underline">Delete</a>
                         </Link>
                       </div>
                     </div>

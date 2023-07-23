@@ -14,8 +14,12 @@ export default async function handler(req, res) {
             is_published: true,
           },
           include: {
-            input: true,
-            output: true,
+            inputs: true,
+            output: {
+              include: {
+                expression: true,
+              },
+            },
           },
         })
       } else if (query.filterStatus && query.filterStatus === "draft") {

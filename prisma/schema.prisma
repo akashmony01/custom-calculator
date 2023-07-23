@@ -21,7 +21,7 @@ model Tbl_Calculator {
   calc_name    String      @db.VarChar(50)
   calc_desc    String      @db.LongText
   is_published Boolean     @default(true)
-  input        Tbl_Input[]
+  inputs       Tbl_Input[]
   output       Tbl_Output?
 }
 
@@ -41,9 +41,9 @@ model Tbl_Input {
 }
 
 model Tbl_Output {
-  id            Int             @id @default(autoincrement())
-  disp_name     String          @db.VarChar(50)
-  calc          Tbl_Calculator  @relation(fields: [c_id], references: [id])
-  c_id          Int             @unique
-  tblExpression Tbl_Expression?
+  id         Int             @id @default(autoincrement())
+  disp_name  String          @db.VarChar(50)
+  calc       Tbl_Calculator  @relation(fields: [c_id], references: [id])
+  c_id       Int             @unique
+  expression Tbl_Expression?
 }

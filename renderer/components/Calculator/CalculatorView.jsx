@@ -23,7 +23,14 @@ export default function CalculatorView({ currentCalculator }) {
       {}
     )
 
-    console.log(variables)
+    let expr = currentCalculator.output.expression.expression
+    let expression = expr
+
+    for (const [key, value] of Object.entries(variables)) {
+      expression = expression.replace(key, value)
+    }
+
+    setCalculationResult(eval(expression))
   }
 
   useEffect(() => {
@@ -40,7 +47,7 @@ export default function CalculatorView({ currentCalculator }) {
         </h4>
 
         <div className="calc-view-inputs">
-          {currentCalculator?.input.map((input, idx) => (
+          {currentCalculator?.inputs.map((input, idx) => (
             <div className="block mt-4" key={input.id}>
               <label
                 htmlFor={`dy_inp_${idx}`}
@@ -80,7 +87,9 @@ export default function CalculatorView({ currentCalculator }) {
           <p className="z-10 bg-white pr-4 font-medium text-lg">
             Output one result is:
           </p>
-          <p className="z-10 bg-white pl-4 font-medium text-lg">{calculationResult || "N/A"}</p>
+          <p className="z-10 bg-white pl-4 font-medium text-lg">
+            {calculationResult || "N/A"}
+          </p>
         </div>
       </div>
     </div>
