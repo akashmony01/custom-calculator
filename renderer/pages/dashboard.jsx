@@ -1,8 +1,9 @@
-import React from "react"
+import React, { useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
 import { getSession, signOut } from "next-auth/react"
 import useAxiosFetch from "../hooks/useAxiosFetch"
+import CalculatorDeleteModal from "../components/Calculator/CalculatorDeleteModal"
 
 export async function getServerSideProps(context) {
   const session = await getSession(context)
@@ -24,6 +25,8 @@ export async function getServerSideProps(context) {
 }
 
 function Dashboard() {
+  const [showModal, setShowModal] = useState(false)
+
   const { response: calculators } = useAxiosFetch({
     url: "/api/calculators",
   })
@@ -32,6 +35,10 @@ function Dashboard() {
     calculators?.data?.filter(calculator => calculator.is_published) || []
   const draftCalculators =
     calculators?.data?.filter(calculator => !calculator.is_published) || []
+
+  const toggleModal = () => {
+    setShowModal(!showModal)
+  }
 
   return (
     <React.Fragment>
@@ -87,9 +94,12 @@ function Dashboard() {
                           <a className="text-red-500 underline">Edit</a>
                         </Link>
 
-                        <Link href="/">
-                          <a className="text-red-500 underline">Delete</a>
-                        </Link>
+                        <button
+                          onClick={toggleModal}
+                          className="text-red-500 underline"
+                        >
+                          Delete
+                        </button>
 
                         <Link href="calculator-list">
                           <a className="text-blue-500 underline">Test</a>
@@ -102,6 +112,13 @@ function Dashboard() {
                     <p className="text-sm opacity-70">
                       {calculator?.calc_desc || "No description available"}
                     </p>
+
+                    {showModal && (
+                      <CalculatorDeleteModal
+                        toggleModal={toggleModal}
+                        calcId={calculator.id}
+                      />
+                    )}
                   </li>
                 ))}
               </ul>
@@ -129,9 +146,12 @@ function Dashboard() {
                           <a className="text-red-500 underline">Edit</a>
                         </Link>
 
-                        <Link href="/">
-                          <a className="text-red-500 underline">Delete</a>
-                        </Link>
+                        <button
+                          onClick={toggleModal}
+                          className="text-red-500 underline"
+                        >
+                          Delete
+                        </button>
                       </div>
                     </div>
 
@@ -140,6 +160,13 @@ function Dashboard() {
                     <p className="text-sm opacity-70">
                       {calculator?.calc_desc || "No description available"}
                     </p>
+
+                    {showModal && (
+                      <CalculatorDeleteModal
+                        toggleModal={toggleModal}
+                        calcId={calculator.id}
+                      />
+                    )}
                   </li>
                 ))}
               </ul>
