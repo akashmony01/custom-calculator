@@ -89,6 +89,39 @@ function CreateCalculator() {
           },
         }
 
+        let expr = formData.calc_output_expression
+
+        try {
+          const inputPrefix = "inp_"
+          const regexPattern = new RegExp(`\\b${inputPrefix}\\w*\\b`, "gi")
+
+          const matchedWords = expr.match(regexPattern) || []
+
+          matchedWords.forEach(varName => {
+            const randomNumber = Math.floor(Math.random() * (9 - 1 + 1)) + 1
+
+            const varIdx = formData.dynamicInputs.findIndex(
+              i => i.var_name === varName
+            )
+
+            if (varIdx !== -1) {
+              expr = expr.replace(varName, randomNumber)
+            } else {
+              throw new ReferenceError(`${varName} is not defined`)
+            }
+          })
+
+          eval(expr)
+        } catch (error) {
+          console.log(error)
+
+          return toast.update(toastId, {
+            render: "Output expression have non-exists variable.",
+            type: "error",
+            autoClose: 3000,
+          })
+        }
+
         await axios.post("/api/calculators", formData, requestOptions)
 
         toast.update(toastId, {
@@ -101,6 +134,8 @@ function CreateCalculator() {
           },
         })
       } catch (error) {
+        console.log(error)
+
         toast.update(toastId, {
           render: "Failed to create new calculator",
           type: "error",
@@ -112,6 +147,8 @@ function CreateCalculator() {
         })
       }
     } catch (error) {
+      console.log(error)
+
       if (error.errors?.[0] === "input::prefixError") {
         return toast.update(toastId, {
           render: "Variable name must start with the inp_",
@@ -178,6 +215,8 @@ function CreateCalculator() {
         },
       })
     } catch (error) {
+      console.log(error)
+
       toast.update(toastId, {
         render: "Failed to create new calculator",
         type: "error",

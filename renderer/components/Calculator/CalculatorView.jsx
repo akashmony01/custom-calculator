@@ -23,14 +23,18 @@ export default function CalculatorView({ currentCalculator }) {
       {}
     )
 
-    let expr = currentCalculator.output.expression.expression
-    let expression = expr
+    try {
+      let expr = currentCalculator.output.expression.expression
 
-    for (const [key, value] of Object.entries(variables)) {
-      expression = expression.replace(key, value)
+      for (const [key, value] of Object.entries(variables)) {
+        expr = expr.replace(new RegExp(`\\b${key}\\w*\\b`, "gi"), value)
+      }
+
+      setCalculationResult(eval(expr))
+    } catch (error) {
+      setCalculationResult(null)
+      console.log(error)
     }
-
-    setCalculationResult(eval(expression))
   }
 
   useEffect(() => {
@@ -57,7 +61,7 @@ export default function CalculatorView({ currentCalculator }) {
               </label>
 
               <input
-                type="text"
+                type="number"
                 id={`dy_inp_${idx}`}
                 className={cn(
                   "w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300",
@@ -67,6 +71,7 @@ export default function CalculatorView({ currentCalculator }) {
                   }
                 )}
                 {...register(`dynamicInputs.${idx}.${input.var_name}`, {
+                  valueAsNumber: true,
                   required: true,
                 })}
               />
