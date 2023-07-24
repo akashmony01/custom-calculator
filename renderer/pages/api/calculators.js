@@ -28,8 +28,12 @@ export default async function handler(req, res) {
             is_published: false,
           },
           include: {
-            input: true,
-            output: true,
+            inputs: true,
+            output: {
+              include: {
+                expression: true,
+              },
+            },
           },
         })
       } else {
@@ -79,8 +83,6 @@ export default async function handler(req, res) {
         })),
       })
 
-      // TODO: Task A. 6 - Need to work on that
-
       const newOutput = await prisma.tbl_Output.create({
         data: {
           disp_name: calc_output_disp_name,
@@ -104,6 +106,53 @@ export default async function handler(req, res) {
 
       return res.status(422).send({
         message: "Failed to create new calculator",
+        error: true,
+      })
+    } finally {
+      await prisma.$disconnect()
+    }
+  }
+
+  if (req.method === "DELETE") {
+    try {
+      const { calc_id } = req.query
+
+      if (parseInt(calc_id)) {
+        const calc = await prisma.tbl_Calculator.findFirst({
+          where: {
+            id: parseInt(calc_id),
+          },
+        })
+
+        if (!calc) {
+          return res.status(404).json({
+            data: "Calculator does not exists",
+            error: false,
+          })
+        }
+
+
+        await prisma.tbl_Calculator.delete({
+          where: {
+            id: parseInt(calc_id),
+          },
+        })
+
+        return res.status(201).json({
+          data: "Calculator deleted successfully",
+          error: false,
+        })
+      }
+
+      return res.status(400).json({
+        data: "Calculator was not valid",
+        error: false,
+      })
+    } catch (error) {
+      console.log(error)
+
+      return res.status(422).send({
+        message: "Failed to delete the calculator",
         error: true,
       })
     } finally {

@@ -28,22 +28,22 @@ model Tbl_Calculator {
 model Tbl_Expression {
   id         Int        @id @default(autoincrement())
   expression String     @db.LongText
-  output     Tbl_Output @relation(fields: [o_id], references: [id])
+  output     Tbl_Output @relation(fields: [o_id], references: [id], onDelete: Cascade)
   o_id       Int        @unique
 }
 
 model Tbl_Input {
-  id        Int            @id @default(autoincrement())
-  disp_name String         @db.VarChar(50)
-  var_name  String         @db.VarChar(50)
-  calc      Tbl_Calculator @relation(fields: [c_id], references: [id])
-  c_id      Int
+  id         Int            @id @default(autoincrement())
+  disp_name  String         @db.VarChar(50)
+  var_name   String         @db.VarChar(50)
+  calculator Tbl_Calculator @relation(fields: [c_id], references: [id], onDelete: Cascade)
+  c_id       Int
 }
 
 model Tbl_Output {
   id         Int             @id @default(autoincrement())
   disp_name  String          @db.VarChar(50)
-  calc       Tbl_Calculator  @relation(fields: [c_id], references: [id])
+  Calculator Tbl_Calculator  @relation(fields: [c_id], references: [id], onDelete: Cascade)
   c_id       Int             @unique
   expression Tbl_Expression?
 }
