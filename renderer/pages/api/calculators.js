@@ -72,7 +72,7 @@ export default async function handler(req, res) {
       await prisma.tbl_Input.createMany({
         data: dynamicInputs.map(input => ({
           ...input,
-          var_name: `inp_${input.var_name}`,
+          var_name: input.var_name,
           c_id: newCalculator.id,
         })),
       })
