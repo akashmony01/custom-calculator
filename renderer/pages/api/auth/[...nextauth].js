@@ -42,6 +42,8 @@ export default NextAuth({
             id: user.id,
           }
         } catch (error) {
+          console.log(error)
+
           return null
         }
       },

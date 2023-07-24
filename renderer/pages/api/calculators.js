@@ -41,6 +41,8 @@ export default async function handler(req, res) {
         error: false,
       })
     } catch (error) {
+      console.log(error)
+
       return res.status(500).send({
         message: "Error: Internal Server - 500",
         error: true,
@@ -98,6 +100,8 @@ export default async function handler(req, res) {
         error: false,
       })
     } catch (error) {
+      console.log(error)
+
       return res.status(422).send({
         message: "Failed to create new calculator",
         error: true,
