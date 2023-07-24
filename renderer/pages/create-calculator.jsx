@@ -82,8 +82,6 @@ function CreateCalculator() {
         published: true,
       }
 
-      console.log(formData)
-
       try {
         const requestOptions = {
           headers: {
@@ -114,7 +112,6 @@ function CreateCalculator() {
         })
       }
     } catch (error) {
-      console.log(error)
       if (error.errors?.[0] === "input::prefixError") {
         return toast.update(toastId, {
           render: "Variable name must start with the inp_",
