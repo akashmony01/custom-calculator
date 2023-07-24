@@ -10,15 +10,42 @@ import { useRouter } from "next/router"
 
 const createCalculatorSchema = yup.object().shape({
   calc_name: yup.string().required(),
-  calc_desc: yup.string().required(),
+  calc_desc: yup.string(),
   dynamicInputs: yup
-    .array(
-      yup.object({
-        disp_name: yup.string().required(),
-        var_name: yup.string().required(),
-      })
+    .array()
+    .of(
+      yup
+        .object({
+          disp_name: yup.string().required(),
+          var_name: yup.string().required(),
+        })
+        .test("validateWithPrefix", "input::prefixError", function (input) {
+          if (input?.var_name && !input.var_name.startsWith("inp_"))
+            return false
+          return true
+        })
     )
-    .required(),
+    .test(
+      "validateDynamicDuplicates",
+      "input::dynamicDuplicateError",
+      function (inputs) {
+        if (!inputs) return true
+
+        const uniqueInputs = new Set(inputs)
+
+        for (const input of uniqueInputs) {
+          if (uniqueInputs.has(input.var_name)) {
+            return false
+          }
+
+          if (input?.var_name) {
+            uniqueInputs.add(input.var_name)
+          }
+        }
+
+        return true
+      }
+    ),
   calc_output_expression: yup.string().required(),
   calc_output_disp_name: yup.string().required(),
 })
@@ -47,50 +74,67 @@ function CreateCalculator() {
       closeButton: false,
     })
 
-    const isDataValid = await createCalculatorSchema.isValid(data)
+    try {
+      const validData = await createCalculatorSchema.validate(data)
 
-    // TODO: Task A. 5 - Check for duplicate var_name from dynamic inputs
+      const formData = {
+        ...validData,
+        published: true,
+      }
 
-    if (!isDataValid) {
-      return toast.update(toastId, {
-        render: "Some required information is missing, try to save as draft",
+      console.log(formData)
+
+      try {
+        const requestOptions = {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+
+        await axios.post("/api/calculators", formData, requestOptions)
+
+        toast.update(toastId, {
+          render: "Calculator created successfully",
+          type: "success",
+          autoClose: 1000,
+          onClose: () => {
+            router.push("/dashboard")
+            reset()
+          },
+        })
+      } catch (error) {
+        toast.update(toastId, {
+          render: "Failed to create new calculator",
+          type: "error",
+          autoClose: 1500,
+          onClose: () => {
+            router.push("/dashboard")
+            reset()
+          },
+        })
+      }
+    } catch (error) {
+      console.log(error)
+      if (error.errors?.[0] === "input::prefixError") {
+        return toast.update(toastId, {
+          render: "Variable name must start with the inp_",
+          type: "error",
+          autoClose: 3000,
+        })
+      }
+
+      if (error.errors?.[0] === "input::dynamicDuplicateError") {
+        return toast.update(toastId, {
+          render: "Inputs must be unique. Duplicate inputs found.",
+          type: "error",
+          autoClose: 3000,
+        })
+      }
+
+      toast.update(toastId, {
+        render: "Some required information is missing, you can save as draft",
         type: "error",
         autoClose: 2000,
-      })
-    }
-
-    const formData = {
-      ...data,
-      published: true,
-    }
-
-    const requestOptions = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-
-    try {
-      await axios.post("/api/calculators", formData, requestOptions)
-
-      toast.update(toastId, {
-        render: "Calculator created successfully",
-        type: "success",
-        autoClose: 1000,
-        onClose: () => {
-          router.push("/dashboard")
-          reset()
-        },
-      })
-    } catch (error) {
-      toast.update(toastId, {
-        render: "Failed to create new calculator",
-        type: "error",
-        autoClose: 1500,
-        onClose: () => {
-          router.push("/dashboard")
-          reset()
-        },
       })
     }
   }
@@ -104,12 +148,18 @@ function CreateCalculator() {
       closeButton: false,
     })
 
-    // TODO: Task A. 5 - Check for duplicate var_name from dynamic inputs
-
     const data = getValues()
     const formData = {
       ...data,
       published: false,
+    }
+
+    if (data.calc_name === "") {
+      return toast.update(toastId, {
+        render: "Draft calculator requires calculator name to save",
+        type: "error",
+        autoClose: 3000,
+      })
     }
 
     const requestOptions = {
