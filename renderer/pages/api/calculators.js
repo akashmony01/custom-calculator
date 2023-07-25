@@ -113,6 +113,78 @@ export default async function handler(req, res) {
     }
   }
 
+  if (req.method === "PUT") {
+    try {
+      const {
+        calc_name,
+        calc_desc,
+        dynamicInputs,
+        calc_output_expression,
+        calc_output_disp_name,
+        published,
+        calc_id,
+      } = req.body
+
+      const newCalculator = await prisma.tbl_Calculator.update({
+        where: {
+          id: calc_id,
+        },
+        data: {
+          calc_name,
+          calc_desc,
+          is_published: published,
+        },
+      })
+
+      await prisma.tbl_Input.deleteMany({
+        where: {
+          c_id: newCalculator.id,
+        },
+      })
+      dynamicInputs.map(async input => {
+        await prisma.tbl_Input.create({
+          data: {
+            ...input,
+            var_name: input.var_name,
+            c_id: newCalculator.id,
+          },
+        })
+      })
+
+      const newOutput = await prisma.tbl_Output.update({
+        where: {
+          c_id: newCalculator.id,
+        },
+        data: {
+          disp_name: calc_output_disp_name,
+        },
+      })
+
+      await prisma.tbl_Expression.update({
+        where: {
+          o_id: newOutput.id,
+        },
+        data: {
+          expression: calc_output_expression,
+        },
+      })
+
+      return res.status(201).json({
+        data: "Calculator updated successfully",
+        error: false,
+      })
+    } catch (error) {
+      console.log(error)
+
+      return res.status(422).send({
+        message: "Failed to create new calculator",
+        error: true,
+      })
+    } finally {
+      await prisma.$disconnect()
+    }
+  }
+
   if (req.method === "DELETE") {
     try {
       const { calc_id } = req.query
@@ -130,7 +202,6 @@ export default async function handler(req, res) {
             error: false,
           })
         }
-
 
         await prisma.tbl_Calculator.delete({
           where: {
