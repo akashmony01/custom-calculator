@@ -101,7 +101,7 @@ function Dashboard() {
                           Delete
                         </button>
 
-                        <Link href="calculator-list">
+                        <Link href={`calculator-list?calcId=${calculator.id}`}>
                           <a className="text-blue-500 underline">Test</a>
                         </Link>
                       </div>

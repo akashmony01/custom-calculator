@@ -1,7 +1,8 @@
-import React, { useReducer } from "react"
+import React, { useEffect, useReducer } from "react"
 import Head from "next/head"
 import Link from "next/link"
 import { exec } from "child_process"
+import { useRouter } from "next/router"
 import useAxiosFetch from "../hooks/useAxiosFetch"
 import CalculatorView from "../components/Calculator/CalculatorView"
 
@@ -26,10 +27,13 @@ const initialReducerState = {
 }
 
 function CalculatorList() {
+  const router = useRouter()
   const [storeStates, dispatch] = useReducer(reducer, initialReducerState)
-  const { response: calculators } = useAxiosFetch({
+  const { response: calculators, loading } = useAxiosFetch({
     url: "/api/calculators?filterStatus=published",
   })
+
+  const { calcId } = router.query
 
   const openBasicCalculator = () => {
     let cmd, platform
@@ -57,9 +61,7 @@ function CalculatorList() {
     return exec(cmd)
   }
 
-  const onSelectionChange = evt => {
-    let selectedOption = evt.target.value
-
+  const handleSelection = selectedOption => {
     if (selectedOption === "open::basicCalculator") {
       dispatch({
         type: "getCalculator",
@@ -96,9 +98,16 @@ function CalculatorList() {
     }
   }
 
+  useEffect(() => {
+    if (calcId) {
+      handleSelection(calcId)
+    }
+  }, [calcId, loading])
+
   let renderCalculatorView
 
   if (storeStates.currentCalculator && !storeStates.isExternalApps) {
+    console.log("t");
     renderCalculatorView = (
       <CalculatorView currentCalculator={storeStates.currentCalculator} />
     )
@@ -152,7 +161,8 @@ function CalculatorList() {
 
             <select
               id="calc-select-options"
-              onChange={onSelectionChange}
+              defaultValue={storeStates.currentCalculator?.id || ""}
+              onChange={(evt) => handleSelection(evt.target.value)}
               className="w-full border cursor-pointer rounded-md bg-transparent py-3 px-4"
             >
               <option value="">-- Select a calculator --</option>
