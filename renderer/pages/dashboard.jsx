@@ -1,9 +1,11 @@
 import React, { useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
-import { getSession, signOut } from "next-auth/react"
+import { getSession } from "next-auth/react"
 import useAxiosFetch from "../hooks/useAxiosFetch"
 import CalculatorDeleteModal from "../components/Calculator/CalculatorDeleteModal"
+import Header from "../components/header"
+import Sidebar from "../components/sidebar"
 
 export async function getServerSideProps(context) {
   const session = await getSession(context)
@@ -46,32 +48,11 @@ function Dashboard() {
         <title>Admin - Dashboard</title>
       </Head>
 
-      <section className="py-4">
-        <div className="container">
-          <div className="bg-gray-200 rounded-md px-5 py-3 flex justify-between items-center gap-4">
-            <label
-              htmlFor="calc"
-              className="block text-lg md:text-xl font-bold"
-            >
-              Admin Dashboard
-            </label>
-
-            <Link href="/create-calculator">
-              <a className="px-4 py-2 rounded-md bg-blue-600 text-white">
-                Create New Calculator
-              </a>
-            </Link>
-
-            <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              type="button"
-              className="px-4 py-2 rounded-md bg-red-600 text-white"
-            >
-              Logout
-            </button>
-          </div>
-
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <section className="block">
+        <Header />
+        <div className="flex items-streatch">
+          <Sidebar />
+          <div className="ml-auto w-8/12 md:w-9/12 min-h-screen grid grid-cols-1 md:grid-cols-2 gap-4 p-5 pt-24 overflow-y-auto">
             <div className="activeCalc">
               <h3 className="text-base md:text-lg font-bold">
                 Active Calculators:
@@ -101,7 +82,7 @@ function Dashboard() {
                           Delete
                         </button>
 
-                        <Link href={`calculator-list?calcId=${calculator.id}`}>
+                        <Link href={`test-calculator?calcId=${calculator.id}`}>
                           <a className="text-blue-500 underline">Test</a>
                         </Link>
                       </div>
@@ -123,7 +104,6 @@ function Dashboard() {
                 ))}
               </ul>
             </div>
-
             <div className="draftCalc">
               <h3 className="text-base md:text-lg font-bold">
                 Draft Calculators:

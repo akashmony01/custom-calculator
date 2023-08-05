@@ -97,19 +97,21 @@ export default function SigninPage() {
             />
           </div>
 
-          <button
-            type="submit"
-            className="mt-4 inline-block px-10 py-2 bg-blue-600 rounded-md text-white"
-          >
-            Login
-          </button>
-        </form>
+          <div className="flex items-center gap-4 justify-between">
+            <button
+              type="submit"
+              className="mt-4 inline-block px-10 py-2 bg-blue-600 rounded-md text-white"
+            >
+              Login
+            </button>
 
-        <Link href="/">
-          <a className="inline-block bg-blue-600 mt-3 text-white px-3 py-1 rounded-md">
-            Go Back To Home
-          </a>
-        </Link>
+            <Link href="/">
+              <a className="inline-block text-blue-600 underline">
+                Back To Home
+              </a>
+            </Link>
+          </div>
+        </form>
       </section>
     </>
   )

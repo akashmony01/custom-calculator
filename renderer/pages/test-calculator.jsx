@@ -5,6 +5,8 @@ import { exec } from "child_process"
 import { useRouter } from "next/router"
 import useAxiosFetch from "../hooks/useAxiosFetch"
 import CalculatorView from "../components/Calculator/CalculatorView"
+import Header from "../components/header"
+import Sidebar from "../components/sidebar"
 
 function reducer(_, action) {
   switch (action.type) {
@@ -143,10 +145,12 @@ function CalculatorList() {
         <title>Customizable Calculator</title>
       </Head>
 
-      <section className="py-12">
-        <div className="container max-w-screen-sm">
-          <div className="relative block">
-            <div className="flex justify-between">
+      <section className="block">
+        <Header />
+        <div className="flex items-streatch">
+          <Sidebar />
+          <div className="ml-auto w-8/12 md:w-9/12 min-h-screen p-5 pt-24 overflow-y-auto">
+            <div className="relative block">
               <label
                 htmlFor="calc-select-options"
                 className="block text-lg md:text-xl font-bold mb-3"
@@ -154,30 +158,26 @@ function CalculatorList() {
                 Selecet a calculator to use:
               </label>
 
-              <Link href="/">
-                <a className="text-blue-600 underline">Back to home</a>
-              </Link>
+              <select
+                id="calc-select-options"
+                defaultValue={storeStates.currentCalculator?.id || ""}
+                onChange={(evt) => handleSelection(evt.target.value)}
+                className="w-full border cursor-pointer rounded-md bg-transparent py-3 px-4"
+              >
+                <option value="">-- Select a calculator --</option>
+                <option value="open::basicCalculator">Basic Calculator</option>
+
+                {calculators?.data?.map(calculator => (
+                  <option key={calculator.id} value={calculator.id}>
+                    {calculator.calc_name}
+                  </option>
+                ))}
+              </select>
+              <hr className="mt-4" />
             </div>
 
-            <select
-              id="calc-select-options"
-              defaultValue={storeStates.currentCalculator?.id || ""}
-              onChange={(evt) => handleSelection(evt.target.value)}
-              className="w-full border cursor-pointer rounded-md bg-transparent py-3 px-4"
-            >
-              <option value="">-- Select a calculator --</option>
-              <option value="open::basicCalculator">Basic Calculator</option>
-
-              {calculators?.data?.map(calculator => (
-                <option key={calculator.id} value={calculator.id}>
-                  {calculator.calc_name}
-                </option>
-              ))}
-            </select>
-            <hr className="mt-4" />
+            <div className="mt-4">{renderCalculatorView}</div>
           </div>
-
-          <div className="mt-4">{renderCalculatorView}</div>
         </div>
       </section>
     </React.Fragment>

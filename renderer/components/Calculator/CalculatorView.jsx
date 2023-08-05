@@ -63,6 +63,7 @@ export default function CalculatorView({ currentCalculator }) {
               <input
                 type="number"
                 id={`dy_inp_${idx}`}
+                placeholder={`enter: ${input.disp_name}`}
                 className={cn(
                   "w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300",
                   {
@@ -90,7 +91,7 @@ export default function CalculatorView({ currentCalculator }) {
         <div className="relative flex items-center gap-4 justify-between">
           <span className="absolute top-2/4 block w-full h-px bg-gray-200 z-0" />
           <p className="z-10 bg-white pr-4 font-medium text-lg">
-            Output one result is:
+            Output result is:
           </p>
           <p className="z-10 bg-white pl-4 font-medium text-lg">
             {calculationResult || "N/A"}
