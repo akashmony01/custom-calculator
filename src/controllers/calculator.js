@@ -11,7 +11,7 @@ const {
   updateCalculatorOutputs,
   updateCalculatorExpression,
   findCalculatorById,
-  deleteCalculator,
+  deleteCalculatorById,
 } = require("../services/calculator")
 
 async function getCalculators(req, res) {
@@ -162,7 +162,7 @@ async function updateCalculatorById(req, res) {
   }
 }
 
-async function deleteCalculatorById(req, res) {
+async function deleteCalculator(req, res) {
   const { id: calculatorId } = req.params
 
   try {
@@ -170,7 +170,7 @@ async function deleteCalculatorById(req, res) {
       throw new Error("Calculator id must be a number")
     }
 
-    const calculator = await findCalculatorById(calculatorId)
+    const calculator = await findCalculatorById(parseInt(calculatorId, 10))
 
     if (!calculator) {
       return res.status(404).json({
@@ -179,7 +179,7 @@ async function deleteCalculatorById(req, res) {
       })
     }
 
-    const deletedCalculator = await deleteCalculator(calculator.id)
+    const deletedCalculator = await deleteCalculatorById(calculator.id)
 
     return res.status(202).json({
       data: deletedCalculator.id,
@@ -199,5 +199,5 @@ module.exports = {
   getCalculatorById,
   createCalculator,
   updateCalculatorById,
-  deleteCalculatorById,
+  deleteCalculator,
 }

@@ -25,6 +25,14 @@ function findCalculatorById(calculatorId) {
     where: {
       id: calculatorId,
     },
+    include: {
+      inputs: true,
+      output: {
+        include: {
+          expression: true,
+        },
+      },
+    },
   })
 }
 

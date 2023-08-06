@@ -42,6 +42,6 @@ router.put("/:id", calculator.updateCalculatorById)
  * @router - /calculator/:id
  * @return - Delete a calculator
  */
-router.delete("/:id", calculator.deleteCalculatorById)
+router.delete("/:id", calculator.deleteCalculator)
 
 module.exports = router
