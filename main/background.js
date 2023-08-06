@@ -1,103 +1,92 @@
-import { app, Menu } from 'electron';
-import serve from 'electron-serve';
-import { createWindow } from './helpers';
+import { app, Menu } from "electron"
+import serve from "electron-serve"
+import { createWindow } from "./helpers"
 
-const isProd = process.env.NODE_ENV === 'production';
+const isProd = process.env.NODE_ENV === "production"
 
 if (isProd) {
-  serve({ directory: 'app' });
+  serve({ directory: "app" })
 } else {
-  app.setPath('userData', `${app.getPath('userData')} (development)`);
+  app.setPath("userData", `${app.getPath("userData")} (development)`)
 }
 
-(async () => {
-  await app.whenReady();
+;(async () => {
+  await app.whenReady()
 
-  const isMac = process.platform === 'darwin'
+  const isMac = process.platform === "darwin"
 
   const template = [
-    // { role: 'appMenu' }
     ...(isMac
-      ? [{
-          label: app.name,
-          submenu: [
-            { role: 'about' },
-            { type: 'separator' },
-            { role: 'services' },
-            { type: 'separator' },
-            { role: 'hide' },
-            { role: 'hideOthers' },
-            { role: 'unhide' },
-            { type: 'separator' },
-            { role: 'quit' }
-          ]
-        }]
+      ? [
+          {
+            label: app.name,
+            submenu: [
+              { role: "about" },
+              { type: "separator" },
+              { role: "services" },
+              { type: "separator" },
+              { role: "hide" },
+              { role: "hideOthers" },
+              { role: "unhide" },
+              { type: "separator" },
+              { role: "quit" },
+            ],
+          },
+        ]
       : []),
-    // { role: 'fileMenu' }
     {
-      label: 'File',
-      submenu: [
-        isMac ? { role: 'close' } : { role: 'quit' }
-      ]
+      label: "File",
+      submenu: [isMac ? { role: "close" } : { role: "quit" }],
     },
-    // { role: 'editMenu' }
     {
-      label: 'Edit',
-      submenu: [
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-      ]
+      label: "Edit",
+      submenu: [{ role: "cut" }, { role: "copy" }, { role: "paste" }],
     },
-    // { role: 'viewMenu' }
     {
-      label: 'View',
+      label: "View",
       submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-      ]
+        { role: "reload" },
+        { role: "forceReload" },
+        { type: "separator" },
+        { role: "resetZoom" },
+        { role: "zoomIn" },
+        { role: "zoomOut" },
+      ],
     },
-    // { role: 'windowMenu' }
     {
-      label: 'Window',
+      label: "Window",
       submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
+        { role: "minimize" },
+        { role: "zoom" },
         ...(isMac
           ? [
-              { type: 'separator' },
-              { role: 'front' },
-              { type: 'separator' },
-              { role: 'window' }
+              { type: "separator" },
+              { role: "front" },
+              { type: "separator" },
+              { role: "window" },
             ]
-          : [
-              { role: 'close' }
-            ])
-      ]
+          : [{ role: "close" }]),
+      ],
     },
   ]
 
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
 
-  const mainWindow = createWindow('main', {
+  const mainWindow = createWindow("main", {
     width: 1000,
     height: 780,
-  });
+  })
 
   if (isProd) {
-    await mainWindow.loadURL('app://./index.html');
+    await mainWindow.loadURL("app://./index.html")
   } else {
-    const port = process.argv[2];
-    await mainWindow.loadURL(`http://localhost:${port}/`);
-    mainWindow.webContents.openDevTools();
+    const port = process.argv[2]
+    await mainWindow.loadURL(`http://localhost:${port}/`)
+    mainWindow.webContents.openDevTools()
   }
-})();
+})()
 
-app.on('window-all-closed', () => {
-  app.quit();
-});
+app.on("window-all-closed", () => {
+  app.quit()
+})
