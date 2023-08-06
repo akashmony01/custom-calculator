@@ -140,24 +140,27 @@ function CalculatorList() {
   return (
     <React.Fragment>
       <Head>
-        <title>Customizable Calculator</title>
+        <title>Use Calculators: Customizable Calculator</title>
       </Head>
 
       <section className="py-12">
         <div className="container max-w-screen-sm">
           <div className="relative block">
-            <div className="flex justify-between">
-              <label
-                htmlFor="calc-select-options"
-                className="block text-lg md:text-xl font-bold mb-3"
-              >
-                Selecet a calculator to use:
-              </label>
-
+            <div className="flex gap-4 justify-between mb-5">
               <Link href="/">
                 <a className="text-blue-600 underline">Back to home</a>
               </Link>
+              <Link href="/init-help">
+                <a className="text-blue-600 underline">Get Help</a>
+              </Link>
             </div>
+            
+            <label
+              htmlFor="calc-select-options"
+              className="block text-lg md:text-xl font-bold mb-3"
+            >
+              Selecet a calculator to use:
+            </label>
 
             <select
               id="calc-select-options"

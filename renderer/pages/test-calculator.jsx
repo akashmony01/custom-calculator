@@ -148,7 +148,7 @@ function CalculatorList() {
   return (
     <React.Fragment>
       <Head>
-        <title>Customizable Calculator</title>
+        <title>Test Calculators: Customizable Calculator</title>
       </Head>
 
       <ProtectedRoute>
@@ -156,13 +156,13 @@ function CalculatorList() {
           <Header />
           <div className="flex items-streatch">
             <Sidebar />
-            <div className="ml-auto w-8/12 md:w-9/12 min-h-screen p-5 pt-24 overflow-y-auto">
+            <div className="ml-auto w-8/12 md:w-9/12 min-h-screen px-5 pt-24 overflow-y-auto">
               <div className="relative block">
                 <label
                   htmlFor="calc-select-options"
-                  className="block text-lg md:text-xl font-bold mb-3"
+                  className="block text-xl md:text-2xl font-bold mb-3"
                 >
-                  Selecet a calculator to use:
+                  Selecet a calculator to test:
                 </label>
 
                 <select
@@ -172,7 +172,6 @@ function CalculatorList() {
                   className="w-full border cursor-pointer rounded-md bg-transparent py-3 px-4"
                 >
                   <option value="">-- Select a calculator --</option>
-                  <option value="open::basicCalculator">Basic Calculator</option>
 
                   {calculators?.data?.map(calculator => (
                     <option key={calculator.id} value={calculator.id}>

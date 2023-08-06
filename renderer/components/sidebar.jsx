@@ -1,7 +1,8 @@
 import React from "react"
 import Link from "next/link"
-import {AiFillHome, AiFillPlusSquare} from 'react-icons/ai'
-import {BiSolidHelpCircle, BiSolidUserCircle, BiSolidDashboard} from 'react-icons/bi'
+import {AiOutlineUser, AiOutlineHome, AiOutlinePlus, AiOutlineQuestion} from 'react-icons/ai'
+import {LuLayoutDashboard} from 'react-icons/lu'
+import {BsInfoLg} from 'react-icons/bs'
 
 export default function SidebarComp() {
   return (
@@ -10,7 +11,7 @@ export default function SidebarComp() {
             <Link href="/">
                 <a className="flex items-center gap-2">
                 <span className="block">
-                    <AiFillHome />
+                    <AiOutlineHome />
                 </span>
                 <span className="block underline">
                     Back to Home
@@ -20,7 +21,7 @@ export default function SidebarComp() {
             <Link href="/dashboard">
                 <a className="flex items-center gap-2">
                 <span className="block">
-                    <BiSolidDashboard />
+                    <LuLayoutDashboard />
                 </span>
                 <span className="block underline">
                     Back to Dashboard
@@ -30,30 +31,40 @@ export default function SidebarComp() {
             <Link href="/create-calculator">
                 <a className="flex items-center gap-2">
                 <span className="block">
-                    <AiFillPlusSquare />
+                    <AiOutlinePlus />
                 </span>
                 <span className="block underline">
                     Create New Calculator
                 </span>
                 </a>
             </Link>
-            <Link href="/init-help">
+            <Link href="/admin-help">
                 <a className="flex items-center gap-2">
                 <span className="block">
-                    <BiSolidHelpCircle />
+                    <AiOutlineQuestion />
                 </span>
                 <span className="block underline">
-                    Get Help
+                    Admin Guide
                 </span>
                 </a>
             </Link>
             <Link href="/calculator-list">
                 <a className="flex items-center gap-2">
                 <span className="block">
-                    <BiSolidUserCircle />
+                    <AiOutlineUser />
                 </span>
                 <span className="block underline">
                     As General User
+                </span>
+                </a>
+            </Link>
+            <Link href="/about-app">
+                <a className="flex items-center gap-2">
+                <span className="block">
+                    <BsInfoLg />
+                </span>
+                <span className="block underline">
+                    Aout this App
                 </span>
                 </a>
             </Link>

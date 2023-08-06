@@ -3,7 +3,10 @@
   "name": "codecrafters-customizable-calculator",
   "description": "The most customizable calculator",
   "version": "1.0.0",
-  "author": "CodeCrafters",
+  "author": {
+    "name": "CodeCrafters",
+    "email": "your@email.com"
+  },
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
@@ -32,5 +35,20 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwindcss": "^3.3.3"
+  },
+  "build": {
+    "appId": "com.codecrafters.customizablecalculator",
+    "linux": {
+      "target": "deb",
+      "icon": "renderer/public/images/logo.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "renderer/public/images/logo.png"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "renderer/public/images/logo.png"
+    }
   }
 }

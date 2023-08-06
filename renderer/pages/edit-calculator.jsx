@@ -289,7 +289,7 @@ function UpdateCalculator() {
   return (
     <React.Fragment>
       <Head>
-        <title>Update Calculator | Admin</title>
+        <title>Update Calculator: Customizable Calculator</title>
       </Head>
 
       <ProtectedRoute>

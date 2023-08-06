@@ -243,7 +243,7 @@ function CreateCalculator() {
   return (
     <React.Fragment>
       <Head>
-        <title>Create Calculator | Admin</title>
+        <title>Create Calculator: Customizable Calculator</title>
       </Head>
 
       <ProtectedRoute>

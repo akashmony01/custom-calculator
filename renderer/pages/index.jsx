@@ -6,7 +6,7 @@ function Home() {
   return (
     <React.Fragment>
       <Head>
-        <title>Welcome to Custom Calculator</title>
+        <title>Welcome to Customizable Calculator</title>
       </Head>
 
       <section className="min-h-screen grid grid-cols-1 sm:grid-cols-2">

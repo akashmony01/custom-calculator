@@ -20,7 +20,7 @@ export default function SigninPage() {
   return (
     <>
       <Head>
-        <title>Welcome to Custom Calculator</title>
+        <title>Sigining in: Customizable Calculator</title>
       </Head>
 
       <section className="h-screen flex flex-col items-center justify-center">

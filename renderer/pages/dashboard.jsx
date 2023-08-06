@@ -29,7 +29,7 @@ function Dashboard() {
   return (
     <React.Fragment>
       <Head>
-        <title>Admin - Dashboard</title>
+        <title>Admin Dashboard: Customizable Calculator</title>
       </Head>
 
       <ProtectedRoute>

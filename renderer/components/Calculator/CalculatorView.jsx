@@ -2,9 +2,16 @@ import React, { useEffect, useState } from "react"
 import cn from "classnames"
 import * as math from "mathjs"
 import { useForm, useFieldArray } from "react-hook-form"
+import {BsCodeSlash} from 'react-icons/bs'
 
 export default function CalculatorView({ currentCalculator }) {
+  const [showExp, setShowExp] = useState(false);
   const [calculationResult, setCalculationResult] = useState(null)
+
+  const toggleVisibility = () => {
+    setShowExp(!showExp);
+  };
+
   const {
     register,
     control,
@@ -48,7 +55,7 @@ export default function CalculatorView({ currentCalculator }) {
     <div className="calc-view-wrapper">
       <form className="calc-view-form" onSubmit={handleSubmit(onSubmit)}>
         <h4 className="calc-view-heading text-lg md:text-xl font-bold">
-          Selected calculator is {currentCalculator.calc_name}
+          Selected calculator is <span className="text-blue-600">"{currentCalculator.calc_name}"</span>
         </h4>
 
         <div className="calc-view-inputs">
@@ -59,6 +66,9 @@ export default function CalculatorView({ currentCalculator }) {
                 className="inline-block cursor-pointer mb-2"
               >
                 {input.disp_name}
+                {showExp && (
+                  <span className="inline-block ml-1.5 text-gray-500">({input.var_name})</span>
+                )}
               </label>
 
               <input
@@ -92,12 +102,35 @@ export default function CalculatorView({ currentCalculator }) {
       <div className="calc-view-output mt-8">
         <div className="relative flex items-center gap-4 justify-between">
           <span className="absolute top-2/4 block w-full h-px bg-gray-200 z-0" />
-          <p className="z-10 bg-white pr-4 font-medium text-lg">
-            Output result is:
+          <p className="z-10 bg-white pr-4 font-medium text-lg text-gray-500">
+            The result
+            <span className="mx-1.5 text-blue-600">
+              ({currentCalculator?.output?.disp_name || "Output"})
+            </span>
+            is:
           </p>
           <p className="z-10 bg-white pl-4 font-medium text-lg">
             {calculationResult || "N/A"}
           </p>
+        </div>
+        <div className="mt-5">
+          <button onClick={toggleVisibility} className="flex items-center gap-1.5">
+              <BsCodeSlash />
+              <span className="text-blue-600 underline">
+                Show Expression:
+              </span>
+          </button>
+          {showExp && (
+            <article className='mt-5 p-4 bg-gray-100'>
+              <p className="mb-3">
+                Th expression is used in this calcultor to calculate the ouput is:
+              </p>
+              <hr />
+              <p className="mt-3 italic text-blue-600">
+                " {currentCalculator.output.expression.expression} "
+              </p>
+            </article>
+          )}
         </div>
       </div>
     </div>
