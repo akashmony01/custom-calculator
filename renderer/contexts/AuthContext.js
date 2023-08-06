@@ -24,7 +24,7 @@ export default function AuthProvider({ children }) {
         user: null,
       })
 
-      const { status, data } = await axios.post(
+      const { data } = await axios.post(
         "http://localhost:8080/api/auth/login",
         {
           username,
@@ -42,7 +42,7 @@ export default function AuthProvider({ children }) {
         user: data?.data,
       })
 
-      if (status === 201) {
+      if (data?.data?.id) {
         router.push("/dashboard")
       } else {
         toast.error("Wrong username or password.")

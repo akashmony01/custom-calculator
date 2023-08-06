@@ -1,7 +1,8 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import axios from "axios"
+import * as math from "mathjs"
 import * as yup from "yup"
 import { toast } from "react-toastify"
 import { useForm, useFieldArray } from "react-hook-form"
@@ -87,6 +88,7 @@ const getCalculator = async (calculatorId) => {
 
 function UpdateCalculator() {
   const router = useRouter()
+  const [calculatorCreating, setCalculatorCreating] = useState(false)
   const { register, control, handleSubmit, reset, getValues, setValue } = useForm({
     defaultValues: getCalculator(),
   })
@@ -104,6 +106,8 @@ function UpdateCalculator() {
       autoClose: false,
       closeButton: false,
     })
+
+    setCalculatorCreating(true)
 
     try {
       const validData = await updateCalculatorSchema.validate({ ...data })
@@ -142,7 +146,7 @@ function UpdateCalculator() {
             }
           })
 
-          eval(expr)
+          math.evaluate(expr)
         } catch (error) {
           console.log(error)
 
@@ -179,6 +183,7 @@ function UpdateCalculator() {
       }
     } catch (error) {
       console.log(error)
+      setCalculatorCreating(false)
 
       if (error.errors?.[0] === "input::prefixError") {
         return toast.update(toastId, {
@@ -206,6 +211,8 @@ function UpdateCalculator() {
 
   const updateDraftCalculator = async evt => {
     evt.preventDefault()
+
+    setCalculatorCreating(true)
 
     const toastId = toast("Updating calculator...", {
       type: "info",
@@ -247,7 +254,7 @@ function UpdateCalculator() {
       })
     } catch (error) {
       console.log(error)
-
+      setCalculatorCreating(false)
       toast.update(toastId, {
         render: "Failed to save the calculator",
         type: "error",
@@ -266,7 +273,7 @@ function UpdateCalculator() {
     }
 
     const fetchAndSetDefaultFormValues = async () => {
-      const data = await getCalculator(1);
+      const data = await getCalculator(calculatorId);
 
       if (data) {
         Object.keys(data).forEach((key) => {
@@ -277,7 +284,7 @@ function UpdateCalculator() {
     };
 
     fetchAndSetDefaultFormValues();
-  }, [setValue]);
+  }, [setValue, calculatorId]);
 
   return (
     <React.Fragment>
@@ -461,12 +468,14 @@ function UpdateCalculator() {
                   <button
                     type="button"
                     onClick={updateDraftCalculator}
-                    className="px-10 py-2 bg-blue-600 rounded-md text-white"
+                    className={`px-10 py-2 bg-blue-600 rounded-md text-white ${calculatorCreating ? "disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed" : ""}`}
+                    disabled={calculatorCreating}
                   >
                     Save Draft
                   </button>
 
-                  <button className="px-10 py-2 bg-green-600 rounded-md text-white">
+                  <button className={`px-10 py-2 bg-green-600 rounded-md text-white ${calculatorCreating ? "disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed" : ""}`}
+                    disabled={calculatorCreating}>
                     Update Calculator
                   </button>
                 </div>

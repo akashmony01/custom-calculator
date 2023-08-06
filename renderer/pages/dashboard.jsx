@@ -13,7 +13,7 @@ import CalculatorDeleteModal from "../components/Calculator/CalculatorDeleteModa
 function Dashboard() {
   const [showModal, setShowModal] = useState(false)
 
-  const { response: calculators } = useAxiosFetch({
+  const { response: calculators, refetchData } = useAxiosFetch({
     url: "http://localhost:8080/api/calculator",
   })
 
@@ -83,6 +83,7 @@ function Dashboard() {
                         <CalculatorDeleteModal
                           toggleModal={toggleModal}
                           calcId={calculator.id}
+                          refetchData={refetchData}
                         />
                       )}
                     </li>
@@ -130,6 +131,7 @@ function Dashboard() {
                         <CalculatorDeleteModal
                           toggleModal={toggleModal}
                           calcId={calculator.id}
+                          refetchData={refetchData}
                         />
                       )}
                     </li>

@@ -1,7 +1,8 @@
-import React from "react"
+import React, { useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import axios from "axios"
+import * as math from "mathjs"
 import * as yup from "yup"
 import { toast } from "react-toastify"
 import { useForm, useFieldArray } from "react-hook-form"
@@ -55,6 +56,7 @@ const createCalculatorSchema = yup.object().shape({
 
 function CreateCalculator() {
   const router = useRouter()
+  const [calculatorCreating, setCalculatorCreating] = useState(false)
   const { register, control, handleSubmit, reset, getValues } = useForm({
     defaultValues: {
       calc_name: "",
@@ -85,6 +87,8 @@ function CreateCalculator() {
         published: true,
       }
 
+      setCalculatorCreating(true)
+
       try {
         const requestOptions = {
           headers: {
@@ -114,7 +118,7 @@ function CreateCalculator() {
             }
           })
 
-          eval(expr)
+          math.evaluate(expr)
         } catch (error) {
           console.log(error)
 
@@ -151,6 +155,7 @@ function CreateCalculator() {
       }
     } catch (error) {
       console.log(error)
+      setCalculatorCreating(false)
 
       if (error.errors?.[0] === "input::prefixError") {
         return toast.update(toastId, {
@@ -178,6 +183,8 @@ function CreateCalculator() {
 
   const createDraftCalculator = async evt => {
     evt.preventDefault()
+
+    setCalculatorCreating(true)
 
     const toastId = toast("Creating calculator...", {
       type: "info",
@@ -219,6 +226,7 @@ function CreateCalculator() {
       })
     } catch (error) {
       console.log(error)
+      setCalculatorCreating(false)
 
       toast.update(toastId, {
         render: "Failed to create new calculator",
@@ -414,12 +422,14 @@ function CreateCalculator() {
                   <button
                     type="button"
                     onClick={createDraftCalculator}
-                    className="px-10 py-2 bg-blue-600 rounded-md text-white"
+                    className={`px-10 py-2 bg-blue-600 rounded-md text-white ${calculatorCreating ? "disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed" : ""}`}
+                    disabled={calculatorCreating}
                   >
                     Save Draft
                   </button>
 
-                  <button className="px-10 py-2 bg-green-600 rounded-md text-white">
+                  <button className={`px-10 py-2 bg-green-600 rounded-md text-white ${calculatorCreating ? "disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed" : ""}`}
+                    disabled={calculatorCreating}>
                     Publish Calculator
                   </button>
                 </div>

@@ -4,7 +4,7 @@ import { FaTimes } from "react-icons/fa"
 import { toast } from "react-toastify"
 import { useRouter } from "next/router"
 
-function CalculatorDeleteModal({ toggleModal, calcId }) {
+function CalculatorDeleteModal({ toggleModal, calcId, refetchData }) {
   const router = useRouter()
 
   const handleDeleteCalculator = async evt => {
@@ -25,13 +25,12 @@ function CalculatorDeleteModal({ toggleModal, calcId }) {
 
       await axios.delete("http://localhost:8080/api/calculator/" + calcId, requestOptions)
 
+      refetchData()
+
       toast.update(toastId, {
         render: "Calculator deleted successfully",
         type: "success",
-        autoClose: 500,
-        onClose: () => {
-          router.reload("/dashboard")
-        },
+        autoClose: 500
       })
     } catch (error) {
       console.log(error)
@@ -41,9 +40,11 @@ function CalculatorDeleteModal({ toggleModal, calcId }) {
         type: "error",
         autoClose: 1500,
         onClose: () => {
-          router.reload("/dashboard")
+          router.replace("/dashboard")
         },
       })
+    } finally {
+      toggleModal()
     }
   }
 

@@ -31,11 +31,15 @@ const useAxiosFetch = axiosParams => {
     }
   }
 
+  const refetchData = () => {
+    fetchData(axiosParams)
+  }
+
   useEffect(() => {
     fetchData(axiosParams)
   }, [])
 
-  return { cancelRequest, response, error, loading }
+  return { cancelRequest, response, error, loading, refetchData }
 }
 
 export default useAxiosFetch

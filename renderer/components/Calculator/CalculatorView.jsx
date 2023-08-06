@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import cn from "classnames"
+import * as math from "mathjs"
 import { useForm, useFieldArray } from "react-hook-form"
 
 export default function CalculatorView({ currentCalculator }) {
@@ -29,8 +30,8 @@ export default function CalculatorView({ currentCalculator }) {
       for (const [key, value] of Object.entries(variables)) {
         expr = expr.replace(new RegExp(`\\b${key}\\w*\\b`, "gi"), value)
       }
-
-      setCalculationResult(eval(expr))
+      
+      setCalculationResult(math.evaluate(expr))
     } catch (error) {
       setCalculationResult(null)
       console.log(error)
@@ -64,6 +65,7 @@ export default function CalculatorView({ currentCalculator }) {
                 type="number"
                 id={`dy_inp_${idx}`}
                 placeholder={`enter: ${input.disp_name}`}
+                defaultValue=""
                 className={cn(
                   "w-full border border-gray-200 focus:border-gray-400 rounded-md outline-none px-4 py-2 focus:outline-none duration-300",
                   {

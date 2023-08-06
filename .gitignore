@@ -1,8 +1,10 @@
-node_modules
-*.log
 .next
-app
-dist
-
-prisma/migrations
 *.lock
+*.log
+**/app
+**/dist
+**/build
+**/logs/**
+**/yarn.lock
+**/node_modules
+**/package-lock.json
