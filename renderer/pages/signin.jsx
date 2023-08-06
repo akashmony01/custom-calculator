@@ -1,30 +1,13 @@
 import React from "react"
 import Link from "next/link"
 import Head from "next/head"
-import { useRouter } from "next/router"
 import { useForm } from "react-hook-form"
-import { signIn, getSession } from "next-auth/react"
-import { toast } from "react-toastify"
 
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-
-  if (session) {
-    return {
-      redirect: {
-        parmanent: false,
-        destination: "/",
-      },
-    };
-  }
-
-  return {
-    props: {},
-  };
-}
+// Contexts
+import { useAuth } from "../contexts/AuthContext"
 
 export default function SigninPage() {
-  const router = useRouter()
+  const { signin } = useAuth();
 
   const {
     register,
@@ -32,26 +15,14 @@ export default function SigninPage() {
     formState: { errors },
   } = useForm()
 
-  const onSubmit = data => {
-    signIn("credentials", {
-      ...data,
-      redirect: false,
-    }).then(({ ok }) => {
-      if (ok) {
-        router.push("/dashboard")
-      } else {
-        toast.error(
-          "Wrong username or password."
-        )
-      }
-    })
-  }
+  const onSubmit = async data => signin(data.username, data.password)
 
   return (
     <>
       <Head>
         <title>Welcome to Custom Calculator</title>
       </Head>
+
       <section className="h-screen flex flex-col items-center justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}

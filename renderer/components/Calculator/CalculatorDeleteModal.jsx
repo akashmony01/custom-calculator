@@ -23,7 +23,7 @@ function CalculatorDeleteModal({ toggleModal, calcId }) {
         },
       }
 
-      await axios.delete("/api/calculators?calc_id=" + calcId, requestOptions)
+      await axios.delete("http://localhost:8080/api/calculator/" + calcId, requestOptions)
 
       toast.update(toastId, {
         render: "Calculator deleted successfully",

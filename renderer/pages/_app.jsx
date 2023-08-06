@@ -1,15 +1,15 @@
 import "../styles/main.css"
 import 'react-toastify/dist/ReactToastify.css';
 
-import { SessionProvider } from "next-auth/react"
+import AuthProvider from '../contexts/AuthContext'
 import { ToastContainer } from 'react-toastify';
 
-const App = ({ Component, pageProps: { session, ...pageProps } }) => {
+const App = ({ Component, pageProps: { ...pageProps } }) => {
   return (
-    <SessionProvider session={session}>
+    <AuthProvider>
       <Component {...pageProps} />
       <ToastContainer />
-    </SessionProvider>
+    </AuthProvider>
   )
 }
 

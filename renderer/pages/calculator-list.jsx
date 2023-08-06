@@ -30,7 +30,7 @@ function CalculatorList() {
   const router = useRouter()
   const [storeStates, dispatch] = useReducer(reducer, initialReducerState)
   const { response: calculators, loading } = useAxiosFetch({
-    url: "/api/calculators?filterStatus=published",
+    url: "http://localhost:8080/api/calculator?filterStatus=published",
   })
 
   const { calcId } = router.query
