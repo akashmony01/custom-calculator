@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import axios from "axios"
@@ -53,22 +53,45 @@ const updateCalculatorSchema = yup.object().shape({
   calc_output_disp_name: yup.string().required(),
 })
 
-function UpdateCalculator({ calculator }) {
-  console.log(calculator);
+const getCalculator = async (calculatorId) => {
+  if (!calculatorId) {
+    return null
+  }
+
+  try {
+    const { data } = await axios.get(
+      `http://localhost:8080/api/calculator/get/${calculatorId}`
+    )
+
+    if (!data?.data) {
+      return null;
+    }
+
+    const { inputs, output, calc_name, calc_desc } = data.data
+
+    return {
+      calc_name,
+      calc_desc,
+      dynamicInputs: inputs.map(input => ({
+        var_name: input.var_name,
+        disp_name: input.disp_name,
+      })) || [],
+      calc_output_expression: output?.expression?.expression || "",
+      calc_output_disp_name: output?.disp_name || ""
+    }
+  } catch (error) {
+    console.error('Error fetching data: ', error);
+    return null;
+  }
+};
+
+function UpdateCalculator() {
   const router = useRouter()
-  const { register, control, handleSubmit, reset, getValues } = useForm({
-    defaultValues: {
-      calc_name: calculator?.calc_name || "",
-      calc_desc: calculator?.calc_desc || "",
-      dynamicInputs:
-        calculator?.inputs?.map(input => ({
-          disp_name: input.disp_name,
-          var_name: input.var_name,
-        })) || [],
-      calc_output_expression: calculator?.output?.expression?.expression || "",
-      calc_output_disp_name: calculator?.output?.disp_name || "",
-    },
+  const { register, control, handleSubmit, reset, getValues, setValue } = useForm({
+    defaultValues: getCalculator(),
   })
+
+  const calculatorId = router.query?.id
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -83,7 +106,7 @@ function UpdateCalculator({ calculator }) {
     })
 
     try {
-      const validData = await updateCalculatorSchema.validate(data)
+      const validData = await updateCalculatorSchema.validate({ ...data })
 
       const formData = {
         ...validData,
@@ -130,7 +153,7 @@ function UpdateCalculator({ calculator }) {
           })
         }
 
-        await axios.put("http://localhost:8080/api/calculator/" + calculator.id, formData, requestOptions)
+        await axios.put("http://localhost:8080/api/calculator/" + calculatorId, formData, requestOptions)
 
         toast.update(toastId, {
           render: "Calculator updated successfully",
@@ -211,7 +234,7 @@ function UpdateCalculator({ calculator }) {
     }
 
     try {
-      await axios.put("http://localhost:8080/api/calculator/" + calculator.id, formData, requestOptions)
+      await axios.put("http://localhost:8080/api/calculator/" + calculatorId, formData, requestOptions)
 
       toast.update(toastId, {
         render: "Calculator saved as Draft",
@@ -236,6 +259,25 @@ function UpdateCalculator({ calculator }) {
       })
     }
   }
+
+  useEffect(() => {
+    if (!calculatorId) {
+      router.replace("/dashboard")
+    }
+
+    const fetchAndSetDefaultFormValues = async () => {
+      const data = await getCalculator(1);
+
+      if (data) {
+        Object.keys(data).forEach((key) => {
+          console.log(key);
+          setValue(key, data[key]);
+        });
+      }
+    };
+
+    fetchAndSetDefaultFormValues();
+  }, [setValue]);
 
   return (
     <React.Fragment>
@@ -435,52 +477,6 @@ function UpdateCalculator({ calculator }) {
       </ProtectedRoute>
     </React.Fragment>
   )
-}
-
-export async function getStaticProps(context) {
-  console.log(context);
-  const calc_id = context.query?.id
-
-  if (!calc_id || calc_id === "") {
-    return {
-      redirect: {
-        parmanent: false,
-        destination: "/dashboard",
-      },
-    }
-  }
-
-  let calculator
-
-  try {
-    const { data } = await axios.post(
-      "http://localhost:8080/api/calculator/get/" + calc_id
-    )
-
-    calculator = data?.data
-  } catch (error) {
-    return {
-      redirect: {
-        parmanent: false,
-        destination: "/dashboard",
-      },
-    }
-  }
-
-  if (!calculator) {
-    return {
-      redirect: {
-        parmanent: false,
-        destination: "/dashboard",
-      },
-    }
-  }
-
-  return {
-    props: {
-      calculator,
-    },
-  }
 }
 
 export default UpdateCalculator
