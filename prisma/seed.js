@@ -1,14 +1,20 @@
 const { PrismaClient } = require("@prisma/client")
-const admins = require("./admins")
 
 const prisma = new PrismaClient()
 
+const userData = [
+  {
+    username: "admin",
+    password: "12345", // 12345
+  },
+]
+
 async function main() {
-  for (let admin of admins) {
+  for (let user of userData) {
     const data = await prisma.tbl_Admin.upsert({
-      where: { id: 1, username: admin.username },
+      where: { id: 1, username: user.username },
       update: {},
-      create: admin,
+      create: user,
     })
 
     console.log(`DB Entry - ${data.username}:${data.password}`)
