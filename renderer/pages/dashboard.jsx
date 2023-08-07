@@ -1,6 +1,9 @@
 import React, { useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
+import axios from "axios"
+import Swal from 'sweetalert2'
+import { toast } from "react-toastify"
 import { withRouter } from "next/router"
 
 // Components & hooks
@@ -8,11 +11,8 @@ import Header from "../components/header"
 import Sidebar from "../components/sidebar"
 import useAxiosFetch from "../hooks/useAxiosFetch"
 import ProtectedRoute from '../components/ProtectedRoute'
-import CalculatorDeleteModal from "../components/Calculator/CalculatorDeleteModal"
 
 function Dashboard() {
-  const [showModal, setShowModal] = useState(false)
-
   const { response: calculators, refetchData } = useAxiosFetch({
     url: "http://localhost:8080/api/calculator",
   })
@@ -22,8 +22,53 @@ function Dashboard() {
   const draftCalculators =
     calculators?.data?.filter(calculator => !calculator.is_published) || []
 
-  const toggleModal = () => {
-    setShowModal(!showModal)
+  const handleCalculatorDelete = (calculatorId) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const toastId = toast("Deleting calculator...", {
+          type: "info",
+          autoClose: false,
+          closeButton: false,
+        })
+
+        try {
+          const requestOptions = {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+
+          await axios.delete("http://localhost:8080/api/calculator/" + calculatorId, requestOptions)
+
+          toast.update(toastId, {
+            render: "Calculator deleted successfully",
+            type: "success",
+            autoClose: 500
+          })
+        } catch (error) {
+          console.log(error)
+
+          toast.update(toastId, {
+            render: "Failed to deleted calculator",
+            type: "error",
+            autoClose: 1500,
+            onClose: () => {
+              router.replace("/dashboard")
+            },
+          })
+        } finally {
+          refetchData()
+        }
+      }
+    })
   }
 
   return (
@@ -61,7 +106,7 @@ function Dashboard() {
                           </Link>
 
                           <button
-                            onClick={toggleModal}
+                            onClick={() => handleCalculatorDelete(calculator.id)}
                             className="text-red-500 underline"
                           >
                             Delete
@@ -78,14 +123,6 @@ function Dashboard() {
                       <p className="text-sm opacity-70">
                         {calculator?.calc_desc || "No description available"}
                       </p>
-
-                      {showModal && (
-                        <CalculatorDeleteModal
-                          toggleModal={toggleModal}
-                          calcId={calculator.id}
-                          refetchData={refetchData}
-                        />
-                      )}
                     </li>
                   ))}
                 </ul>
@@ -113,7 +150,7 @@ function Dashboard() {
                           </Link>
 
                           <button
-                            onClick={toggleModal}
+                            onClick={() => handleCalculatorDelete(calculator.id)}
                             className="text-red-500 underline"
                           >
                             Delete
@@ -126,14 +163,6 @@ function Dashboard() {
                       <p className="text-sm opacity-70">
                         {calculator?.calc_desc || "No description available"}
                       </p>
-
-                      {showModal && (
-                        <CalculatorDeleteModal
-                          toggleModal={toggleModal}
-                          calcId={calculator.id}
-                          refetchData={refetchData}
-                        />
-                      )}
                     </li>
                   ))}
                 </ul>
