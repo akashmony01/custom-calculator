@@ -64,7 +64,7 @@ export default function SidebarComp() {
                     <BsInfoLg />
                 </span>
                 <span className="block underline">
-                    Aout this App
+                    About this App
                 </span>
                 </a>
             </Link>
