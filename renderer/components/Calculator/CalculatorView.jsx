@@ -126,13 +126,13 @@ export default function CalculatorView({ currentCalculator }) {
                 Th expression is used in this calcultor to calculate the ouput is:
               </p>
               <hr />
-              <p className="mt-3 italic text-blue-600">
+              <div className="mt-3 italic text-blue-600">
                 <pre className="bg-gray-900 p-4 rounded-md shadow-md text-white text-sm font-mono overflow-auto">
                   <code className="block">
                     {currentCalculator.output.expression.expression}
                   </code>
                 </pre>
-              </p>
+              </div>
             </article>
           )}
         </div>
