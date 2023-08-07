@@ -10,12 +10,30 @@ export const AuthContext = createContext({
   signout: () => {},
 })
 
+const getAuthDataFromSession = () => {
+  try {
+    const authDataString = sessionStorage.getItem("authData")
+    const authData = authDataString ? JSON.parse(authDataString) : null
+
+    return {
+      isAuthenticated: authData.isAuthenticated || false,
+      user: authData.user || null,
+    }
+  } catch (error) {
+    return {
+      isAuthenticated: false,
+      user: null,
+    }
+  }
+}
+
+function setAuthDataInSession(authData) {
+  sessionStorage.setItem("authData", JSON.stringify(authData))
+}
+
 export default function AuthProvider({ children }) {
   const router = useRouter()
-  const [state, setState] = useState({
-    isAuthenticated: false,
-    user: null,
-  })
+  const [state, setState] = useState(getAuthDataFromSession())
 
   const signin = async (username, password) => {
     try {
@@ -37,10 +55,13 @@ export default function AuthProvider({ children }) {
         }
       )
 
-      setState({
+      const authData = {
         isAuthenticated: true,
         user: data?.data,
-      })
+      }
+
+      setAuthDataInSession(authData)
+      setState(authData)
 
       if (data?.data?.id) {
         router.push("/dashboard")
@@ -57,10 +78,13 @@ export default function AuthProvider({ children }) {
   }
 
   const signout = () => {
-    setState({
+    const authData = {
       isAuthenticated: false,
       user: null,
-    })
+    }
+
+    setAuthDataInSession(authData)
+    setState(authData)
 
     router.push("/")
   }

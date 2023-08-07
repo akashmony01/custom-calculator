@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import cn from "classnames"
 import * as math from "mathjs"
 import { useForm, useFieldArray } from "react-hook-form"
-import {BsCodeSlash} from 'react-icons/bs'
+import { BsCodeSlash } from 'react-icons/bs'
 
 export default function CalculatorView({ currentCalculator }) {
   const [showExp, setShowExp] = useState(false);
@@ -37,7 +37,7 @@ export default function CalculatorView({ currentCalculator }) {
       for (const [key, value] of Object.entries(variables)) {
         expr = expr.replace(new RegExp(`\\b${key}\\w*\\b`, "gi"), value)
       }
-      
+
       setCalculationResult(math.evaluate(expr))
     } catch (error) {
       setCalculationResult(null)
@@ -115,10 +115,10 @@ export default function CalculatorView({ currentCalculator }) {
         </div>
         <div className="mt-5">
           <button onClick={toggleVisibility} className="flex items-center gap-1.5">
-              <BsCodeSlash />
-              <span className="text-blue-600 underline">
-                Show Expression:
-              </span>
+            <BsCodeSlash />
+            <span className="text-blue-600 underline">
+              Show Expression:
+            </span>
           </button>
           {showExp && (
             <article className='mt-5 p-4 bg-gray-100'>
@@ -127,7 +127,11 @@ export default function CalculatorView({ currentCalculator }) {
               </p>
               <hr />
               <p className="mt-3 italic text-blue-600">
-                " {currentCalculator.output.expression.expression} "
+                <pre className="bg-gray-900 p-4 rounded-md shadow-md text-white text-sm font-mono overflow-auto">
+                  <code className="block">
+                    {currentCalculator.output.expression.expression}
+                  </code>
+                </pre>
               </p>
             </article>
           )}
